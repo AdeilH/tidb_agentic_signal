@@ -50,10 +50,10 @@ func NewClient(apiKey string) *Client {
 }
 
 func (c *Client) Ask(ctx context.Context, system, user string) (Prediction, error) {
-	url := "https://api.moonshot.cn/v1/chat/completions"
+	url := "https://api.moonshot.ai/v1/chat/completions"
 
 	reqBody := KimiRequest{
-		Model: "moonshot-v1-128k",
+		Model: "kimi-k2-0905-preview",
 		Messages: []Message{
 			{Role: "system", Content: system},
 			{Role: "user", Content: user},

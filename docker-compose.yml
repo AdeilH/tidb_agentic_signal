@@ -18,7 +18,6 @@ services:
       - --config=/tidb.toml
       - --host=0.0.0.0
       - --advertise-address=tidb
-      - --log-level=info
     restart: unless-stopped
 
   pd:

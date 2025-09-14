@@ -4,7 +4,82 @@ A sophisticated, multi-tenant cryptocurrency trading signals bot that maximizes 
 
 ## 🚀 TiDB Features Showcased
 
-### 1. **TTL (Time-To-Live) Data Management**
+### 1. **TTL (## 🧪 Testing
+
+### Unit Tests
+```bash
+# Run all unit tests
+go test ./... -v
+
+# Run tests for specific package
+go test ./internal/db -v
+go test ./internal/predictor -v
+```
+
+### Integration Tests
+Comprehensive integration tests validate the complete system with real TiDB, Kimi AI, and Binance APIs.
+
+```bash
+# Run all integration tests
+./test/integration/run_tests.sh
+
+# Run specific test suites
+./test/integration/run_tests.sh tidb      # TiDB features only
+./test/integration/run_tests.sh ai        # Kimi AI integration
+./test/integration/run_tests.sh binance   # Binance API testing
+./test/integration/run_tests.sh e2e       # End-to-end signal generation
+./test/integration/run_tests.sh api       # HTTP API testing
+./test/integration/run_tests.sh bench     # Performance benchmarks
+```
+
+#### What Gets Tested
+- ✅ **TiDB Features**: TTL, vector storage, multi-tenant isolation
+- ✅ **AI Integration**: Real Kimi AI prediction generation
+- ✅ **External APIs**: Binance testnet connectivity and data
+- ✅ **End-to-End Flow**: Complete signal generation pipeline
+- ✅ **Performance**: Database operation benchmarks
+- ✅ **API Endpoints**: REST API and WebSocket functionality
+
+For detailed testing documentation, see [INTEGRATION_TESTING.md](INTEGRATION_TESTING.md).
+
+## 🔧 Development
+
+### Prerequisites
+- Go 1.25+
+- Docker & Docker Compose
+- Valid API keys (Kimi AI, Binance TestNet)
+
+### Quick Development Setup
+```bash
+# 1. Clone and setup
+git clone <repository-url>
+cd agentic_go_signals
+cp .env.example .env
+# Edit .env with your API keys
+
+# 2. Start TiDB cluster
+docker-compose up -d
+
+# 3. Run tests to validate setup
+./test/integration/run_tests.sh
+
+# 4. Start development server
+go run cmd/all/main.go
+```
+
+### Code Quality
+```bash
+# Format code
+go fmt ./...
+
+# Vet code
+go vet ./...
+
+# Run linter (if golangci-lint installed)
+golangci-lint run
+```
+
+## 🔐 Security Featuresime-To-Live) Data Management**
 - **Automatic Data Expiration**: Events and event vectors automatically expire after 30 days
 - **Storage Optimization**: Prevents database bloat with automatic cleanup
 - **Implementation**: Raw SQL with `TTL = 30 DAY` on `event_vecs` table

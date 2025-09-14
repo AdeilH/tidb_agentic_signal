@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -55,9 +56,36 @@ type Trade struct {
 }
 
 func Open(dsn string) (*DB, error) {
+	// First connect without database name to create the database
+	if strings.Contains(dsn, "/sigforge") {
+		// Extract base DSN without database name
+		baseDSN := strings.Replace(dsn, "/sigforge", "/", 1)
+		
+		// Connect to MySQL without specific database
+		baseConn, err := sql.Open("mysql", baseDSN)
+		if err != nil {
+			return nil, err
+		}
+		
+		// Create database if it doesn't exist
+		_, err = baseConn.Exec("CREATE DATABASE IF NOT EXISTS sigforge")
+		if err != nil {
+			baseConn.Close()
+			return nil, fmt.Errorf("failed to create database: %w", err)
+		}
+		baseConn.Close()
+	}
+
+	// Now connect with the full DSN including database name
 	conn, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
+	}
+
+	// Test the connection
+	if err := conn.Ping(); err != nil {
+		conn.Close()
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
 	db := &DB{conn: conn}
@@ -74,10 +102,6 @@ func AutoMigrate(db *DB) error {
 	}
 
 	queries := []string{
-		// Create database if not exists
-		`CREATE DATABASE IF NOT EXISTS sigforge`,
-		`USE sigforge`,
-
 		// Events table
 		`CREATE TABLE IF NOT EXISTS events (
 			id BIGINT AUTO_INCREMENT,
