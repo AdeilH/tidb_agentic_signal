@@ -2,10 +2,11 @@ package svc
 
 import (
 	"sync"
-	"github.com/hack/s/internal/config"
-	"github.com/hack/s/internal/db"
-	"github.com/hack/s/internal/kimi"
-	"github.com/hack/s/internal/api"
+
+	"github.com/adeilh/agentic_go_signals/internal/api"
+	"github.com/adeilh/agentic_go_signals/internal/config"
+	"github.com/adeilh/agentic_go_signals/internal/db"
+	"github.com/adeilh/agentic_go_signals/internal/kimi"
 )
 
 var (

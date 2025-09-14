@@ -1,0 +1,17 @@
+[log]
+level = "info"
+
+[performance]
+max-procs = 0
+
+[prepared-plan-cache]
+enabled = true
+
+[tikv-client]
+grpc-connection-count = 4
+
+[tx-local-latches]
+enabled = false
+
+[experimental]
+allow-expression-index = true
