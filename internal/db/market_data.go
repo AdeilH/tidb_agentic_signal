@@ -351,3 +351,186 @@ func (m *MarketDataStore) GetTradingVolume(symbol string, hours int) (map[string
 		"volume_ratio": buyVolume.Float64 / (buyVolume.Float64 + sellVolume.Float64),
 	}, nil
 }
+
+// GetAdvancedSignals uses TiDB's analytical capabilities for sophisticated trading signals
+func (m *MarketDataStore) GetAdvancedSignals(symbol string) (map[string]interface{}, error) {
+	// TiDB Time-Series Analysis with Window Functions
+	query := `
+	WITH price_analysis AS (
+		SELECT 
+			price,
+			ts,
+			LAG(price, 1) OVER (ORDER BY ts) as prev_price,
+			LAG(price, 5) OVER (ORDER BY ts) as price_5min_ago,
+			LAG(price, 15) OVER (ORDER BY ts) as price_15min_ago,
+			AVG(price) OVER (ORDER BY ts ROWS BETWEEN 9 PRECEDING AND CURRENT ROW) as sma_10,
+			AVG(price) OVER (ORDER BY ts ROWS BETWEEN 19 PRECEDING AND CURRENT ROW) as sma_20,
+			STDDEV(price) OVER (ORDER BY ts ROWS BETWEEN 19 PRECEDING AND CURRENT ROW) as volatility,
+			ROW_NUMBER() OVER (ORDER BY ts DESC) as rn
+		FROM market_prices 
+		WHERE symbol = ? AND ts >= DATE_SUB(NOW(), INTERVAL 2 HOUR)
+		ORDER BY ts DESC
+	),
+	volume_analysis AS (
+		SELECT 
+			SUM(CASE WHEN is_buyer_maker = 0 THEN quantity ELSE 0 END) as recent_buy_volume,
+			SUM(CASE WHEN is_buyer_maker = 1 THEN quantity ELSE 0 END) as recent_sell_volume,
+			COUNT(*) as trade_frequency,
+			AVG(price) as avg_trade_price
+		FROM market_trades 
+		WHERE symbol = ? AND trade_time >= DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+	),
+	support_resistance AS (
+		SELECT 
+			MIN(price) as support_level,
+			MAX(price) as resistance_level,
+			AVG(price) as mid_point
+		FROM market_prices 
+		WHERE symbol = ? AND ts >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+	)
+	SELECT 
+		p.price as current_price,
+		p.prev_price,
+		p.price_5min_ago,
+		p.price_15min_ago,
+		p.sma_10,
+		p.sma_20,
+		p.volatility,
+		v.recent_buy_volume,
+		v.recent_sell_volume,
+		v.trade_frequency,
+		v.avg_trade_price,
+		sr.support_level,
+		sr.resistance_level,
+		sr.mid_point
+	FROM price_analysis p, volume_analysis v, support_resistance sr
+	WHERE p.rn = 1`
+
+	var currentPrice, prevPrice, price5min, price15min, sma10, sma20, volatility sql.NullFloat64
+	var buyVol, sellVol, tradeFreq, avgTradePrice, support, resistance, midPoint sql.NullFloat64
+
+	err := m.db.conn.QueryRow(query, symbol, symbol, symbol).Scan(
+		&currentPrice, &prevPrice, &price5min, &price15min, &sma10, &sma20, &volatility,
+		&buyVol, &sellVol, &tradeFreq, &avgTradePrice, &support, &resistance, &midPoint,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate advanced indicators
+	result := map[string]interface{}{
+		"current_price":    currentPrice.Float64,
+		"previous_price":   prevPrice.Float64,
+		"price_5min_ago":   price5min.Float64,
+		"price_15min_ago":  price15min.Float64,
+		"sma_10":           sma10.Float64,
+		"sma_20":           sma20.Float64,
+		"volatility":       volatility.Float64,
+		"buy_volume":       buyVol.Float64,
+		"sell_volume":      sellVol.Float64,
+		"trade_frequency":  tradeFreq.Float64,
+		"avg_trade_price":  avgTradePrice.Float64,
+		"support_level":    support.Float64,
+		"resistance_level": resistance.Float64,
+		"mid_point":        midPoint.Float64,
+	}
+
+	// Calculate derived signals
+	if currentPrice.Float64 > 0 && sma10.Float64 > 0 && sma20.Float64 > 0 {
+		result["price_vs_sma10"] = (currentPrice.Float64 - sma10.Float64) / sma10.Float64 * 100
+		result["price_vs_sma20"] = (currentPrice.Float64 - sma20.Float64) / sma20.Float64 * 100
+		result["sma_cross"] = sma10.Float64 > sma20.Float64 // Golden cross indicator
+	}
+
+	if buyVol.Float64+sellVol.Float64 > 0 {
+		result["volume_ratio"] = buyVol.Float64 / (buyVol.Float64 + sellVol.Float64)
+	}
+
+	if currentPrice.Float64 > 0 && support.Float64 > 0 && resistance.Float64 > 0 {
+		result["support_distance"] = (currentPrice.Float64 - support.Float64) / support.Float64 * 100
+		result["resistance_distance"] = (resistance.Float64 - currentPrice.Float64) / currentPrice.Float64 * 100
+	}
+
+	if prevPrice.Float64 > 0 {
+		result["momentum_1min"] = (currentPrice.Float64 - prevPrice.Float64) / prevPrice.Float64 * 100
+	}
+	if price5min.Float64 > 0 {
+		result["momentum_5min"] = (currentPrice.Float64 - price5min.Float64) / price5min.Float64 * 100
+	}
+	if price15min.Float64 > 0 {
+		result["momentum_15min"] = (currentPrice.Float64 - price15min.Float64) / price15min.Float64 * 100
+	}
+
+	return result, nil
+}
+
+// GetRealTimeMarketState uses TiDB's real-time capabilities for instant analysis
+func (m *MarketDataStore) GetRealTimeMarketState(symbol string) (map[string]interface{}, error) {
+	// TiDB Real-time aggregation with TIFLASH for OLAP queries
+	query := `
+	SELECT 
+		-- Price momentum indicators
+		(SELECT price FROM market_prices WHERE symbol = ? ORDER BY ts DESC LIMIT 1) as latest_price,
+		(SELECT price FROM market_prices WHERE symbol = ? ORDER BY ts DESC LIMIT 1 OFFSET 1) as prev_price,
+		
+		-- Volume surge detection (last 5 minutes vs previous 5 minutes)
+		(SELECT COALESCE(SUM(quantity), 0) FROM market_trades 
+		 WHERE symbol = ? AND trade_time >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)) as volume_last_5min,
+		(SELECT COALESCE(SUM(quantity), 0) FROM market_trades 
+		 WHERE symbol = ? AND trade_time BETWEEN DATE_SUB(NOW(), INTERVAL 10 MINUTE) 
+		 AND DATE_SUB(NOW(), INTERVAL 5 MINUTE)) as volume_prev_5min,
+		
+		-- Order book pressure (from recent trades)
+		(SELECT COUNT(*) FROM market_trades 
+		 WHERE symbol = ? AND is_buyer_maker = 0 AND trade_time >= DATE_SUB(NOW(), INTERVAL 2 MINUTE)) as recent_buys,
+		(SELECT COUNT(*) FROM market_trades 
+		 WHERE symbol = ? AND is_buyer_maker = 1 AND trade_time >= DATE_SUB(NOW(), INTERVAL 2 MINUTE)) as recent_sells,
+		
+		-- Volatility spike detection
+		(SELECT STDDEV(price) FROM market_prices 
+		 WHERE symbol = ? AND ts >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)) as volatility_15min,
+		(SELECT STDDEV(price) FROM market_prices 
+		 WHERE symbol = ? AND ts >= DATE_SUB(NOW(), INTERVAL 1 HOUR)) as volatility_1hour
+	`
+
+	var latestPrice, prevPrice, vol5min, volPrev5min sql.NullFloat64
+	var recentBuys, recentSells sql.NullInt64
+	var vol15min, vol1hour sql.NullFloat64
+
+	err := m.db.conn.QueryRow(query, symbol, symbol, symbol, symbol, symbol, symbol, symbol, symbol).Scan(
+		&latestPrice, &prevPrice, &vol5min, &volPrev5min, &recentBuys, &recentSells, &vol15min, &vol1hour,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	result := map[string]interface{}{
+		"latest_price":     latestPrice.Float64,
+		"previous_price":   prevPrice.Float64,
+		"volume_last_5min": vol5min.Float64,
+		"volume_prev_5min": volPrev5min.Float64,
+		"recent_buys":      recentBuys.Int64,
+		"recent_sells":     recentSells.Int64,
+		"volatility_15min": vol15min.Float64,
+		"volatility_1hour": vol1hour.Float64,
+	}
+
+	// Calculate real-time signals
+	if prevPrice.Float64 > 0 {
+		result["price_momentum"] = (latestPrice.Float64 - prevPrice.Float64) / prevPrice.Float64 * 100
+	}
+
+	if volPrev5min.Float64 > 0 {
+		result["volume_surge"] = vol5min.Float64 / volPrev5min.Float64
+	}
+
+	if recentBuys.Int64+recentSells.Int64 > 0 {
+		result["buy_pressure"] = float64(recentBuys.Int64) / float64(recentBuys.Int64+recentSells.Int64)
+	}
+
+	if vol1hour.Float64 > 0 {
+		result["volatility_spike"] = vol15min.Float64 / vol1hour.Float64
+	}
+
+	return result, nil
+}

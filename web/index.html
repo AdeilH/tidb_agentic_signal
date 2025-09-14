@@ -206,6 +206,31 @@
             background: #c0392b;
         }
 
+        .btn-analytics {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 2px;
+            box-shadow: 0 2px 4px rgba(142, 68, 173, 0.2);
+        }
+
+        .btn-analytics:hover {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+        }
+
+        .btn-analytics:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(142, 68, 173, 0.2);
+        }
+
         .status {
             background: white;
             border-radius: 10px;
@@ -259,49 +284,165 @@
         }
 
         .recommendation-item {
-            border-left: 4px solid #3498db;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 0 5px 5px 0;
+            background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #444;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .recommendation-item.buy {
-            border-left-color: #27ae60;
-            background: #d5f4e6;
+        .recommendation-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #555, #777);
         }
 
-        .recommendation-item.sell {
-            border-left-color: #e74c3c;
-            background: #fdeaea;
+        .recommendation-item.buy::before {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
         }
 
-        .recommendation-item.hold {
-            border-left-color: #f39c12;
-            background: #fef9e7;
+        .recommendation-item.sell::before {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .recommendation-item.hold::before {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .recommendation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-color: #666;
+        }
+
+        .recommendation-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
         .recommendation-symbol {
+            font-size: 18px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .urgency-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .urgency-badge.low { background: #34495e; color: #ecf0f1; }
+        .urgency-badge.medium { background: #f39c12; color: #fff; }
+        .urgency-badge.high { background: #e74c3c; color: #fff; }
+        .urgency-badge.critical { background: #8e44ad; color: #fff; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
 
         .recommendation-action {
-            font-size: 0.9rem;
-            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-action strong {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .recommendation-item.buy .recommendation-action strong {
+            color: #27ae60;
+        }
+
+        .recommendation-item.sell .recommendation-action strong {
+            color: #e74c3c;
+        }
+
+        .recommendation-item.hold .recommendation-action strong {
+            color: #f39c12;
+        }
+
+        .confidence-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #bbb;
         }
 
         .recommendation-reason {
-            font-size: 0.8rem;
-            color: #666;
-            font-style: italic;
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.4;
+            margin-bottom: 12px;
         }
 
-        .recommendation-confidence {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 5px;
+        .timing-score {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .timing-score .excellent { color: #27ae60; font-weight: bold; }
+        .timing-score .good { color: #f39c12; font-weight: bold; }
+        .timing-score .poor { color: #e74c3c; font-weight: bold; }
+
+        .advanced-signals, .realtime-signals {
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+
+        .signal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .signal-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .signal-row span:first-child {
+            color: #999;
+        }
+
+        .signal-row .bullish { color: #27ae60; font-weight: bold; }
+        .signal-row .bearish { color: #e74c3c; font-weight: bold; }
+        .signal-row .neutral { color: #f39c12; font-weight: bold; }
+        .signal-row .alert { color: #e74c3c; font-weight: bold; animation: blink 1s infinite; }
+        .signal-row .normal { color: #27ae60; }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .recommendation-timestamp {
+            font-size: 11px;
+            color: #666;
+            text-align: right;
+            margin-top: 8px;
+            font-style: italic;
         }
 
         /* Order Book Styles */
@@ -422,6 +563,13 @@
                 <button class="btn-primary" onclick="connectWebSocket()">Connect WebSocket</button>
                 <button class="btn-primary" onclick="loadRecommendations()">Get AI Signals</button>
             </div>
+            
+            <h4>TiDB Advanced Analytics</h4>
+            <div class="button-group">
+                <button class="btn-analytics" onclick="getAdvancedAnalytics()">🔍 Advanced Signals</button>
+                <button class="btn-analytics" onclick="getRealTimeState()">⚡ Real-Time State</button>
+                <button class="btn-analytics" onclick="getEnhancedKimiSignals()">🤖 Enhanced Kimi AI</button>
+            </div>
         </div>
 
         <div class="stats-grid">
@@ -537,14 +685,20 @@
             }
         }
 
+        // WebSocket message handler
         function handleWebSocketMessage(data) {
             updateCount++;
             document.getElementById('update-count').textContent = updateCount;
             document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
 
+            console.log('WebSocket message received:', data);
+
             if (data.type === 'market_update' && data.data) {
                 if (data.data.type === 'price_update') {
                     updatePriceCard(data.data.data);
+                } else if (data.data.type === 'depth' && data.symbol === currentOrderBookSymbol) {
+                    // Update order book in real-time
+                    displayOrderBook(data.data);
                 }
             }
         }
@@ -787,32 +941,280 @@
                 let actionText = 'HOLD';
                 let reason = 'Neutral market conditions';
                 let confidence = 'Medium';
+                let urgency = 'LOW';
+                let entryTiming = 0;
                 
-                // Parse AI response to determine action
+                // Parse enhanced AI response
                 if (data.recommendation) {
                     const recText = data.recommendation.toLowerCase();
-                    if (recText.includes('buy') || recText.includes('bullish')) {
+                    if (recText.includes('long') || recText.includes('buy')) {
                         action = 'buy';
                         actionText = 'BUY';
-                    } else if (recText.includes('sell') || recText.includes('bearish')) {
+                    } else if (recText.includes('short') || recText.includes('sell')) {
                         action = 'sell';
                         actionText = 'SELL';
                     }
-                    reason = data.recommendation;
+                }
+                
+                if (data.reasoning) {
+                    reason = data.reasoning;
                 }
                 
                 if (data.confidence) {
-                    confidence = data.confidence;
+                    confidence = `${data.confidence}%`;
+                }
+
+                // Enhanced data from TiDB analytics
+                if (data.enhanced_data) {
+                    urgency = data.enhanced_data.urgency || 'LOW';
+                    entryTiming = Math.round((data.enhanced_data.entry_timing_score || 0) * 100);
+                }
+
+                // Advanced signals from TiDB
+                let advancedInfo = '';
+                if (data.tidb_analytics) {
+                    const analytics = data.tidb_analytics;
+                    advancedInfo = `
+                        <div class="advanced-signals">
+                            <div class="signal-row">
+                                <span>SMA Cross:</span> 
+                                <span class="${analytics.sma_cross ? 'bullish' : 'bearish'}">
+                                    ${analytics.sma_cross ? '✓ Golden' : '✗ Death'}
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Volume Ratio:</span> 
+                                <span class="${analytics.volume_ratio > 0.6 ? 'bullish' : analytics.volume_ratio < 0.4 ? 'bearish' : 'neutral'}">
+                                    ${(analytics.volume_ratio * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Momentum (5m):</span> 
+                                <span class="${analytics.momentum_5min > 0 ? 'bullish' : 'bearish'}">
+                                    ${analytics.momentum_5min > 0 ? '+' : ''}${analytics.momentum_5min.toFixed(2)}%
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Real-time state info
+                let realTimeInfo = '';
+                if (data.realtime_state) {
+                    const state = data.realtime_state;
+                    realTimeInfo = `
+                        <div class="realtime-signals">
+                            <div class="signal-row">
+                                <span>Volatility Spike:</span> 
+                                <span class="${state.volatility_spike > 1.5 ? 'alert' : 'normal'}">
+                                    ${state.volatility_spike.toFixed(2)}x
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Buy Pressure:</span> 
+                                <span class="${state.buy_pressure > 0.6 ? 'bullish' : state.buy_pressure < 0.4 ? 'bearish' : 'neutral'}">
+                                    ${(state.buy_pressure * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                        </div>
+                    `;
                 }
                 
                 return `
                     <div class="recommendation-item ${action}">
-                        <div class="recommendation-symbol">${rec.symbol}</div>
+                        <div class="recommendation-header-row">
+                            <div class="recommendation-symbol">${rec.symbol}</div>
+                            <div class="urgency-badge ${urgency.toLowerCase()}">${urgency}</div>
+                        </div>
                         <div class="recommendation-action">
                             <strong>${actionText}</strong>
+                            <span class="confidence-badge">Confidence: ${confidence}</span>
                         </div>
                         <div class="recommendation-reason">${reason}</div>
-                        <div class="recommendation-confidence">Confidence: ${confidence}</div>
+                        <div class="timing-score">
+                            Entry Timing Score: 
+                            <span class="${entryTiming > 70 ? 'excellent' : entryTiming > 40 ? 'good' : 'poor'}">
+                                ${entryTiming}%
+                            </span>
+                        </div>
+                        ${advancedInfo}
+                        ${realTimeInfo}
+                        <div class="recommendation-timestamp">
+                            Updated: ${new Date(data.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            contentDiv.innerHTML = html;
+        }
+
+        // Advanced TiDB Analytics Functions
+        async function getAdvancedAnalytics() {
+            try {
+                const contentDiv = document.getElementById('recommendations-content');
+                contentDiv.innerHTML = '<div class="loading">🔍 Loading advanced TiDB analytics...</div>';
+                
+                const response = await apiCall('/analytics/advanced');
+                if (response.success && response.signals) {
+                    displayAdvancedSignals(response.signals);
+                } else {
+                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load advanced analytics</div>';
+                }
+            } catch (error) {
+                console.error('Advanced analytics error:', error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    '<div style="color: #e74c3c;">Error loading advanced analytics</div>';
+            }
+        }
+
+        async function getRealTimeState() {
+            try {
+                const contentDiv = document.getElementById('recommendations-content');
+                contentDiv.innerHTML = '<div class="loading">⚡ Loading real-time market state...</div>';
+                
+                const response = await apiCall('/analytics/realtime');
+                if (response.success && response.market_state) {
+                    displayRealTimeState(response.market_state);
+                } else {
+                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load real-time state</div>';
+                }
+            } catch (error) {
+                console.error('Real-time state error:', error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    '<div style="color: #e74c3c;">Error loading real-time state</div>';
+            }
+        }
+
+        async function getEnhancedKimiSignals() {
+            try {
+                const contentDiv = document.getElementById('recommendations-content');
+                contentDiv.innerHTML = '<div class="loading">🤖 Loading enhanced Kimi AI signals...</div>';
+                
+                const symbols = Object.keys(prices).slice(0, 3); // Top 3 symbols
+                const recommendations = [];
+                
+                for (const symbol of symbols) {
+                    try {
+                        const response = await apiCall(`/kimi/enhanced/${symbol}`);
+                        if (response.data) {
+                            recommendations.push({
+                                symbol: symbol,
+                                data: response.data
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Failed to get enhanced recommendations for ${symbol}:`, error);
+                    }
+                }
+                
+                displayRecommendations(recommendations);
+            } catch (error) {
+                console.error('Enhanced Kimi signals error:', error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    '<div style="color: #e74c3c;">Error loading enhanced Kimi signals</div>';
+            }
+        }
+
+        function displayAdvancedSignals(signals) {
+            const contentDiv = document.getElementById('recommendations-content');
+            
+            const html = signals.map(signal => {
+                const smaClass = signal.sma_cross ? 'bullish' : 'bearish';
+                const volumeClass = signal.volume_ratio > 0.6 ? 'bullish' : 
+                                   signal.volume_ratio < 0.4 ? 'bearish' : 'neutral';
+                const momentumClass = signal.momentum_5min > 0 ? 'bullish' : 'bearish';
+                
+                return `
+                    <div class="recommendation-item advanced-signal">
+                        <div class="recommendation-header-row">
+                            <div class="recommendation-symbol">${signal.symbol}</div>
+                            <div class="urgency-badge ${signal.urgency ? signal.urgency.toLowerCase() : 'medium'}">
+                                TiDB Analytics
+                            </div>
+                        </div>
+                        <div class="advanced-signals">
+                            <div class="signal-row">
+                                <span>SMA Cross Signal:</span>
+                                <span class="${smaClass}">
+                                    ${signal.sma_cross ? '✓ Golden Cross' : '✗ Death Cross'}
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Volume Ratio:</span>
+                                <span class="${volumeClass}">
+                                    ${(signal.volume_ratio * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>5min Momentum:</span>
+                                <span class="${momentumClass}">
+                                    ${signal.momentum_5min > 0 ? '+' : ''}${signal.momentum_5min.toFixed(2)}%
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Support Level:</span>
+                                <span class="neutral">$${signal.support_level.toFixed(2)}</span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Resistance Level:</span>
+                                <span class="neutral">$${signal.resistance_level.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="recommendation-timestamp">
+                            Generated: ${new Date(signal.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            contentDiv.innerHTML = html;
+        }
+
+        function displayRealTimeState(marketState) {
+            const contentDiv = document.getElementById('recommendations-content');
+            
+            const html = marketState.map(state => {
+                const volatilityClass = state.volatility_spike > 1.5 ? 'alert' : 'normal';
+                const buyPressureClass = state.buy_pressure > 0.6 ? 'bullish' : 
+                                        state.buy_pressure < 0.4 ? 'bearish' : 'neutral';
+                const momentumClass = Math.abs(state.price_momentum) > 0.01 ? 'alert' : 'normal';
+                
+                return `
+                    <div class="recommendation-item realtime-state">
+                        <div class="recommendation-header-row">
+                            <div class="recommendation-symbol">${state.symbol}</div>
+                            <div class="urgency-badge ${state.volatility_spike > 1.5 ? 'high' : 'medium'}">
+                                Real-Time
+                            </div>
+                        </div>
+                        <div class="realtime-signals">
+                            <div class="signal-row">
+                                <span>Volatility Spike:</span>
+                                <span class="${volatilityClass}">
+                                    ${state.volatility_spike.toFixed(2)}x Normal
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Buy Pressure:</span>
+                                <span class="${buyPressureClass}">
+                                    ${(state.buy_pressure * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Price Momentum:</span>
+                                <span class="${momentumClass}">
+                                    ${state.price_momentum > 0 ? '+' : ''}${state.price_momentum.toFixed(3)}%
+                                </span>
+                            </div>
+                            <div class="signal-row">
+                                <span>Volume (5min):</span>
+                                <span class="neutral">${state.volume_last_5min.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="recommendation-timestamp">
+                            State at: ${new Date(state.timestamp).toLocaleTimeString()}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -919,22 +1321,6 @@
             `;
             
             document.getElementById('orderbook-content').innerHTML = html;
-        }
-
-        // Enhanced WebSocket message handler
-        function handleWebSocketMessage(data) {
-            updateCount++;
-            document.getElementById('update-count').textContent = updateCount;
-            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
-
-            if (data.type === 'market_update' && data.data) {
-                if (data.data.type === 'price_update') {
-                    updatePriceCard(data.data.data);
-                } else if (data.data.type === 'depth' && data.symbol === currentOrderBookSymbol) {
-                    // Update order book in real-time
-                    displayOrderBook(data.data);
-                }
-            }
         }
 
         // Auto-refresh and initialization

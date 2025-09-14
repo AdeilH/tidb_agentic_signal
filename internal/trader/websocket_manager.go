@@ -190,8 +190,8 @@ func (wsm *BinanceWebSocketManager) handleTickerData(symbol string, data interfa
 		handler(tickerEvent)
 	}
 
-	log.Printf("📊 %s Ticker: Price=%s, Change=%s%%",
-		symbol, tickerEvent.LastPrice, tickerEvent.PriceChangePercent)
+	// log.Printf("📊 %s Ticker: Price=%s, Change=%s%%",
+	// 	symbol, tickerEvent.LastPrice, tickerEvent.PriceChangePercent)
 }
 
 // handleTradeData processes individual trade information
@@ -213,9 +213,9 @@ func (wsm *BinanceWebSocketManager) handleTradeData(symbol string, data interfac
 		handler(tradeEvent)
 	}
 
-	log.Printf("💱 %s Trade: Price=%s, Qty=%s, Side=%s",
-		symbol, tradeEvent.Price, tradeEvent.Quantity,
-		map[bool]string{true: "SELL", false: "BUY"}[tradeEvent.IsBuyerMaker])
+	// log.Printf("💱 %s Trade: Price=%s, Qty=%s, Side=%s",
+	// 	symbol, tradeEvent.Price, tradeEvent.Quantity,
+	// 	map[bool]string{true: "SELL", false: "BUY"}[tradeEvent.IsBuyerMaker])
 }
 
 // handleKlineData processes candlestick information
@@ -263,8 +263,8 @@ func (wsm *BinanceWebSocketManager) handleDepthData(symbol string, data interfac
 		handler(depthEvent)
 	}
 
-	log.Printf("📋 %s Depth: Bids=%d, Asks=%d",
-		symbol, len(depthEvent.Bids), len(depthEvent.Asks))
+	// log.Printf("📋 %s Depth: Bids=%d, Asks=%d",
+	// 	symbol, len(depthEvent.Bids), len(depthEvent.Asks))
 }
 
 // pingHandler sends periodic ping messages to keep connection alive

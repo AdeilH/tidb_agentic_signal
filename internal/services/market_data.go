@@ -604,6 +604,16 @@ func (s *MarketDataService) GetTradingSignalsFromTiDB(symbol string) map[string]
 	return signals
 }
 
+// GetAdvancedTiDBSignals uses TiDB's analytical capabilities for sophisticated trading signals
+func (s *MarketDataService) GetAdvancedTiDBSignals(symbol string) (map[string]interface{}, error) {
+	return s.marketDataStore.GetAdvancedSignals(symbol)
+}
+
+// GetRealTimeMarketState uses TiDB's real-time capabilities for instant analysis
+func (s *MarketDataService) GetRealTimeMarketState(symbol string) (map[string]interface{}, error) {
+	return s.marketDataStore.GetRealTimeMarketState(symbol)
+}
+
 // WebSocket handler methods for the new WebSocket manager
 
 func (s *MarketDataService) handleTickerUpdate(event trader.WSTickerEvent) {
@@ -667,7 +677,7 @@ func (s *MarketDataService) handleTickerUpdate(event trader.WSTickerEvent) {
 	}
 	s.wsHub.Broadcast("market_update", update)
 
-	log.Printf("💰 %s: $%s (%.2f%%)", event.Symbol, event.LastPrice, priceChangePercent)
+	// log.Printf("💰 %s: $%s (%.2f%%)", event.Symbol, event.LastPrice, priceChangePercent)
 }
 
 func (s *MarketDataService) handleTradeUpdate(event trader.WSTradeEvent) {
@@ -690,7 +700,7 @@ func (s *MarketDataService) handleTradeUpdate(event trader.WSTradeEvent) {
 	}
 	s.wsHub.Broadcast("market_update", update)
 
-	log.Printf("⚡ %s Trade: %s @ %s", event.Symbol, event.Quantity, event.Price)
+	// log.Printf("⚡ %s Trade: %s @ %s", event.Symbol, event.Quantity, event.Price)
 }
 
 func (s *MarketDataService) handleDepthUpdate(event trader.WSDepthEvent) {
@@ -709,7 +719,7 @@ func (s *MarketDataService) handleDepthUpdate(event trader.WSDepthEvent) {
 	}
 	s.wsHub.Broadcast("market_update", update)
 
-	log.Printf("📊 %s Order Book: %d bids, %d asks", event.Symbol, len(event.Bids), len(event.Asks))
+	// log.Printf("📊 %s Order Book: %d bids, %d asks", event.Symbol, len(event.Bids), len(event.Asks))
 }
 
 func (s *MarketDataService) handleKlineUpdate(event trader.WSKlineEvent) {
@@ -741,7 +751,7 @@ func (s *MarketDataService) handleKlineUpdate(event trader.WSKlineEvent) {
 	}
 	s.wsHub.Broadcast("market_update", update)
 
-	log.Printf("📈 %s Kline [%s]: O=%s H=%s L=%s C=%s V=%s",
-		event.Kline.Symbol, event.Kline.Interval,
-		event.Kline.Open, event.Kline.High, event.Kline.Low, event.Kline.Close, event.Kline.Volume)
+	// log.Printf("📈 %s Kline [%s]: O=%s H=%s L=%s C=%s V=%s",
+	// 	event.Kline.Symbol, event.Kline.Interval,
+	// 	event.Kline.Open, event.Kline.High, event.Kline.Low, event.Kline.Close, event.Kline.Volume)
 }
