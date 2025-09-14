@@ -105,6 +105,10 @@ func New(database *db.DB, binanceClient *trader.Client, kimiClient *kimi.Client)
 	}
 
 	apiApp.setupRoutes()
+	
+	// Auto-start market data collection
+	go apiApp.autoStartMarketData()
+	
 	return apiApp
 }
 
@@ -459,6 +463,24 @@ func (a *App) startMarketData(c *fiber.Ctx) error {
 		"status":  "success",
 		"message": "Market data service started",
 	})
+}
+
+// autoStartMarketData automatically starts the market data service on server startup
+func (a *App) autoStartMarketData() {
+	log.Printf("🚀 Auto-starting market data service...")
+	
+	if a.marketDataService.IsRunning() {
+		log.Printf("ℹ️ Market data service is already running")
+		return
+	}
+
+	ctx := context.Background()
+	if err := a.marketDataService.StartStreaming(ctx); err != nil {
+		log.Printf("❌ Failed to auto-start market data service: %v", err)
+		return
+	}
+
+	log.Printf("✅ Market data service auto-started successfully")
 }
 
 func (a *App) stopMarketData(c *fiber.Ctx) error {

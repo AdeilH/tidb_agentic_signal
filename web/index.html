@@ -746,15 +746,6 @@
         </div>
 
         <div class="controls">
-            <h3>Market Data Controls</h3>
-            <div class="button-group">
-                <button class="btn-success" onclick="startMarketData()">Start Market Data</button>
-                <button class="btn-danger" onclick="stopMarketData()">Stop Market Data</button>
-                <button class="btn-primary" onclick="getMarketStatus()">Get Status</button>
-                <button class="btn-primary" onclick="getMarketSummary()">Get Summary</button>
-                <button class="btn-primary" onclick="connectWebSocket()">Connect WebSocket</button>
-            </div>
-            
             <h4>TiDB Advanced Analytics</h4>
             <div class="button-group">
                 <button class="btn-analytics" onclick="getAdvancedAnalytics()">🔍 Advanced Signals</button>
@@ -829,7 +820,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadMarketData();
             getMarketStatus();
+            getMarketSummary(); // Auto-load market summary including avg change
             connectWebSocket();
+            
+            // Start periodic updates for avg change
+            setTimeout(() => {
+                getMarketSummary(); // First update after 5 seconds
+            }, 5000);
         });
 
         // WebSocket Connection
@@ -884,6 +881,11 @@
             if (data.type === 'market_update' && data.data) {
                 if (data.data.type === 'price_update') {
                     updatePriceCard(data.data.data);
+                    
+                    // Update market summary every 5 price updates to refresh avg change more frequently
+                    if (updateCount % 5 === 0) {
+                        getMarketSummary();
+                    }
                     
                     // Auto-refresh data if relevant tabs are active
                     const currentTab = document.querySelector('.tab-button.active')?.textContent;
@@ -1007,13 +1009,15 @@
             }
         }
 
-        async function getMarketSummary() {
+        async function getMarketSummary(showAlert = false) {
             try {
                 const response = await apiCall('/market/summary');
                 const data = response.data;
                 
                 updateStatsFromSummary(data);
-                alert('Market summary updated');
+                if (showAlert) {
+                    alert('Market summary updated');
+                }
             } catch (error) {
                 // Error already handled in apiCall
             }
@@ -1733,9 +1737,15 @@
         setInterval(() => {
             if (document.getElementById('price-grid').style.display !== 'none') {
                 loadMarketData();
+                getMarketSummary(); // Auto-update market summary including avg change
                 loadRecommendations(); // Refresh AI recommendations
             }
         }, 30000);
+
+        // Frequent market summary updates for avg change
+        setInterval(() => {
+            getMarketSummary(); // Update avg change every 15 seconds
+        }, 15000);
 
         // TiDB Analysis Cards functionality
         let selectedTiDBCard = null;
@@ -1944,7 +1954,35 @@
                     return;
                 }
                 
-                kimiContent.innerHTML = '<div class="loading">🤖 Loading Kimi AI analysis...</div>';
+                // Don't clear content until we have new data - just show loading overlay
+                const currentContent = kimiContent.innerHTML;
+                const isFirstLoad = currentContent.includes('Loading analysis...') || currentContent.trim() === '';
+                
+                if (isFirstLoad) {
+                    kimiContent.innerHTML = '<div class="loading" style="color: red;">🤖 Loading Kimi AI analysis...</div>';
+                } else {
+                    // Add loading overlay instead of clearing content
+                    kimiContent.style.position = 'relative';
+                    const overlay = document.createElement('div');
+                    overlay.className = 'loading-overlay';
+                    overlay.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.7);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 5px;
+                        z-index: 10;
+                        color: white;
+                        font-size: 0.9rem;
+                    `;
+                    overlay.innerHTML = '🔄 Updating analysis...';
+                    kimiContent.appendChild(overlay);
+                }
                 
                 const endpoint = `/kimi/enhanced/${currentSelectedSymbol}`;
                 console.log(`🔍 Kimi Analysis URL: ${API_BASE}${endpoint}`);
@@ -1989,6 +2027,13 @@
                     // Get market sentiment and urgency
                     const sentiment = data.enhanced_data?.market_sentiment || 'UNKNOWN';
                     const urgency = data.enhanced_data?.urgency || 'MEDIUM';
+                    
+                    // Remove loading overlay if it exists
+                    const existingOverlay = kimiContent.querySelector('.loading-overlay');
+                    if (existingOverlay) {
+                        existingOverlay.remove();
+                        kimiContent.style.position = '';
+                    }
                     
                     kimiContent.innerHTML = `
                         <div class="kimi-analysis-result">
@@ -2037,12 +2082,26 @@
                         </div>
                     `;
                 } else {
+                    // Remove loading overlay if it exists
+                    const existingOverlay = kimiContent.querySelector('.loading-overlay');
+                    if (existingOverlay) {
+                        existingOverlay.remove();
+                        kimiContent.style.position = '';
+                    }
+                    
                     kimiContent.innerHTML = '<div style="color: #e74c3c;">❌ No Kimi analysis data available</div>';
                 }
             } catch (error) {
                 console.error(`❌ Kimi analysis error for ${currentSelectedSymbol}:`, error);
                 const kimiContent = document.getElementById('selected-kimi-analysis');
                 if (kimiContent) {
+                    // Remove loading overlay if it exists
+                    const existingOverlay = kimiContent.querySelector('.loading-overlay');
+                    if (existingOverlay) {
+                        existingOverlay.remove();
+                        kimiContent.style.position = '';
+                    }
+                    
                     kimiContent.innerHTML = `<div style="color: #e74c3c;">❌ Error loading Kimi analysis: ${error.message}</div>`;
                 }
             }
