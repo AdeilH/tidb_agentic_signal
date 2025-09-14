@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>SigForge - Real-time Market Data</title>
     <style>
         * {
@@ -100,6 +103,19 @@
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .price-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .price-card.selected {
+            border: 2px solid #3498db;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
         }
 
         .price-card.updated {
@@ -253,6 +269,145 @@
 
         .status-indicator.disconnected {
             background: #e74c3c;
+        }
+
+        .symbol-selector {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .symbol-selector h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .symbol-selector p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .symbol-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+
+        .selected-symbol-analysis {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .analysis-section {
+            margin-bottom: 20px;
+        }
+
+        .analysis-section h4 {
+            margin: 0 0 10px 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .analysis-content {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .tidb-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tidb-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            text-align: center;
+        }
+
+        .tidb-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .tidb-card.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .tidb-card h5 {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .tidb-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .analysis-item {
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #667eea;
+        }
+
+        .analysis-metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .metric-value {
+            color: #555;
+        }
+
+        .metric-value.bullish {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .metric-value.bearish {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .metric-value.strong {
+            color: #8e44ad;
+            font-weight: bold;
+        }
+
+        .kimi-reasoning {
+            line-height: 1.4;
+        }
+
+        .kimi-confidence {
+            font-size: 0.9rem;
+        }
+
+        .kimi-timestamp {
+            text-align: right;
+            font-style: italic;
         }
 
         /* Kimi AI Recommendations Styles */
@@ -553,6 +708,43 @@
             <p>Last Update: <span id="last-update">Never</span></p>
         </div>
 
+        <!-- Symbol Selection Section -->
+        <div class="symbol-selector">
+            <h3>Selected Symbol: <span id="selected-symbol-display">None</span></h3>
+            <p>👆 Click on any price card above to select a symbol for focused analysis</p>
+            <div class="symbol-info" id="symbol-info" style="display: none;">
+                <p>📊 <span id="selected-symbol-price">-</span></p>
+                <p>📈 <span id="selected-symbol-change">-</span></p>
+            </div>
+            
+            <!-- Kimi Analysis for Selected Symbol -->
+            <div class="selected-symbol-analysis" id="selected-symbol-analysis" style="display: none;">
+                <div class="analysis-section">
+                    <h4>🤖 Kimi AI Analysis</h4>
+                    <div id="selected-kimi-analysis" class="analysis-content">
+                        Loading analysis...
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>📊 TiDB Advanced Analytics</h4>
+                    <div id="selected-tidb-analysis" class="analysis-content">
+                        <div class="tidb-cards">
+                            <div class="tidb-card" onclick="loadTiDBAnalysis('advanced')">
+                                <h5>Advanced Signals</h5>
+                                <p>Technical indicators & momentum</p>
+                            </div>
+                            <div class="tidb-card" onclick="loadTiDBAnalysis('realtime')">
+                                <h5>Real-time State</h5>
+                                <p>Live market conditions</p>
+                            </div>
+                        </div>
+                        <div id="tidb-analysis-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="controls">
             <h3>Market Data Controls</h3>
             <div class="button-group">
@@ -561,7 +753,6 @@
                 <button class="btn-primary" onclick="getMarketStatus()">Get Status</button>
                 <button class="btn-primary" onclick="getMarketSummary()">Get Summary</button>
                 <button class="btn-primary" onclick="connectWebSocket()">Connect WebSocket</button>
-                <button class="btn-primary" onclick="loadRecommendations()">Get AI Signals</button>
             </div>
             
             <h4>TiDB Advanced Analytics</h4>
@@ -569,6 +760,11 @@
                 <button class="btn-analytics" onclick="getAdvancedAnalytics()">🔍 Advanced Signals</button>
                 <button class="btn-analytics" onclick="getRealTimeState()">⚡ Real-Time State</button>
                 <button class="btn-analytics" onclick="getEnhancedKimiSignals()">🤖 Enhanced Kimi AI</button>
+            </div>
+
+            <!-- Analytics Display Area -->
+            <div id="recommendations-content" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                <div class="loading">Loading analytics...</div>
             </div>
         </div>
 
@@ -598,17 +794,6 @@
             </div>
             
             <div class="right-panel">
-                <!-- Kimi AI Recommendations Panel -->
-                <div class="recommendations-panel">
-                    <div class="recommendations-header">
-                        <div class="ai-icon">AI</div>
-                        <h3>Kimi AI Trading Signals</h3>
-                    </div>
-                    <div id="recommendations-content">
-                        <div class="loading">Loading recommendations...</div>
-                    </div>
-                </div>
-
                 <!-- Order Book Panel -->
                 <div class="orderbook-panel">
                     <div class="orderbook-header">
@@ -633,6 +818,9 @@
         let ws = null;
         let updateCount = 0;
         let prices = {};
+        let selectedSymbol = null; // Track selected symbol for focused analysis
+        let currentSelectedSymbol = null; // Track for integrated analysis
+        let currentOrderBookSymbol = 'BTCUSDT'; // Current order book symbol
 
         // API Base URL
         const API_BASE = 'http://localhost:3333';
@@ -696,10 +884,29 @@
             if (data.type === 'market_update' && data.data) {
                 if (data.data.type === 'price_update') {
                     updatePriceCard(data.data.data);
+                    
+                    // Auto-refresh data if relevant tabs are active
+                    const currentTab = document.querySelector('.tab-button.active')?.textContent;
+                    if (currentTab === 'Real-Time State') {
+                        setTimeout(() => getRealTimeState(), 1000); // Delay to let price settle
+                    } else if (currentTab === 'Enhanced-Kimi-AI') {
+                        setTimeout(() => getEnhancedKimiSignals(), 2000); // Longer delay for AI processing
+                    }
                 } else if (data.data.type === 'depth' && data.symbol === currentOrderBookSymbol) {
                     // Update order book in real-time
                     displayOrderBook(data.data);
                 }
+            } else if (data.type === 'realtime_state_update' && data.data) {
+                // Handle real-time state updates
+                const currentTab = document.querySelector('.tab-button.active')?.textContent;
+                if (currentTab === 'Real-Time State') {
+                    displayRealTimeState(data.data);
+                }
+            } else if (data.type === 'ticker_update' && data.data) {
+                // Handle ticker updates - update price cards
+                data.data.forEach(tickerData => {
+                    updatePriceCard(tickerData);
+                });
             }
         }
 
@@ -719,6 +926,12 @@
         // API Calls
         async function apiCall(endpoint, method = 'GET', body = null) {
             try {
+                // Clean up endpoint to avoid double slashes
+                const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+                const fullUrl = `${API_BASE}${cleanEndpoint}`;
+                
+                console.log(`🌐 API Call: ${method} ${fullUrl}`);
+                
                 const options = {
                     method,
                     headers: {
@@ -730,7 +943,7 @@
                     options.body = JSON.stringify(body);
                 }
 
-                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const response = await fetch(fullUrl, options);
                 const data = await response.json();
                 
                 if (!response.ok) {
@@ -861,7 +1074,65 @@
                 </div>
             `;
 
+            // Add click handler for symbol selection
+            card.onclick = () => selectSymbol(priceData.symbol);
+
             return card;
+        }
+
+        // Symbol selection functionality
+        function selectSymbol(symbol) {
+            // Update selected symbol
+            selectedSymbol = symbol;
+            currentSelectedSymbol = symbol; // For integrated analysis
+            
+            // Update visual selection
+            document.querySelectorAll('.price-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            const selectedCard = document.getElementById(`card-${symbol}`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Update selected symbol display
+            document.getElementById('selected-symbol-display').textContent = symbol;
+            
+            // Show symbol info if price data exists
+            if (prices[symbol]) {
+                const priceData = prices[symbol];
+                document.getElementById('selected-symbol-price').textContent = 
+                    `$${formatNumber(priceData.price)}`;
+                document.getElementById('selected-symbol-change').textContent = 
+                    `${priceData.priceChangePercent >= 0 ? '+' : ''}${priceData.priceChangePercent.toFixed(2)}%`;
+                document.getElementById('symbol-info').style.display = 'block';
+            }
+            
+            // Show selected symbol analysis section
+            const analysisSection = document.getElementById('selected-symbol-analysis');
+            if (analysisSection) {
+                analysisSection.style.display = 'block';
+                
+                // Stop any existing auto-update and start fresh for new symbol
+                stopKimiAutoUpdate();
+                console.log(`🔄 Starting Kimi auto-update for ${symbol} (30s interval)`);
+                startKimiAutoUpdate();
+                updateKimiAnalysisForSelected();
+                
+                // Load default TiDB analysis (advanced)
+                loadTiDBAnalysis('advanced');
+            }
+            
+            // Update the current tab with focused analysis for the selected symbol
+            const currentTab = document.querySelector('.tab-button.active')?.textContent;
+            if (currentTab === 'Enhanced-Kimi-AI') {
+                getEnhancedKimiSignalsForSymbol(symbol);
+            } else if (currentTab === 'AI Signals') {
+                getKimiSignalsForSymbol(symbol);
+            }
+            
+            console.log(`Selected symbol: ${symbol} - Integrated analysis loaded`);
         }
 
         function updatePriceCard(priceData) {
@@ -869,14 +1140,29 @@
             
             const existingCard = document.getElementById(`card-${priceData.symbol}`);
             if (existingCard) {
+                const wasSelected = existingCard.classList.contains('selected');
                 const newCard = createPriceCard(priceData);
                 newCard.className = 'price-card updated';
+                
+                // Maintain selected state
+                if (wasSelected) {
+                    newCard.classList.add('selected');
+                }
+                
                 existingCard.replaceWith(newCard);
                 
                 // Remove updated class after animation
                 setTimeout(() => {
-                    newCard.className = 'price-card';
+                    newCard.className = wasSelected ? 'price-card selected' : 'price-card';
                 }, 300);
+                
+                // Update selected symbol info if this is the selected symbol
+                if (selectedSymbol === priceData.symbol) {
+                    document.getElementById('selected-symbol-price').textContent = 
+                        `$${formatNumber(priceData.price)}`;
+                    document.getElementById('selected-symbol-change').textContent = 
+                        `${priceData.priceChangePercent >= 0 ? '+' : ''}${priceData.priceChangePercent.toFixed(2)}%`;
+                }
             } else {
                 // Add new card if it doesn't exist
                 const grid = document.getElementById('price-grid');
@@ -901,14 +1187,14 @@
         async function loadRecommendations() {
             try {
                 const contentDiv = document.getElementById('recommendations-content');
-                contentDiv.innerHTML = '<div class="loading">Loading AI recommendations...</div>';
+                contentDiv.innerHTML = '<div class="loading" style="color: red;">Loading AI recommendations...</div>';
                 
                 const symbols = Object.keys(prices);
                 const recommendations = [];
                 
                 for (const symbol of symbols) {
                     try {
-                        const response = await apiCall(`/kimi/signals/${symbol}`);
+                        const response = await apiCall(`/kimi/enhanced/${symbol}`);
                         if (response.data) {
                             recommendations.push({
                                 symbol: symbol,
@@ -957,11 +1243,41 @@
                 }
                 
                 if (data.reasoning) {
-                    reason = data.reasoning;
+                    // Try to parse JSON reasoning if it's wrapped in ```json
+                    try {
+                        let reasoningText = data.reasoning;
+                        if (reasoningText.includes('```json')) {
+                            const jsonStart = reasoningText.indexOf('{');
+                            const jsonEnd = reasoningText.lastIndexOf('}') + 1;
+                            if (jsonStart !== -1 && jsonEnd > jsonStart) {
+                                const jsonStr = reasoningText.substring(jsonStart, jsonEnd);
+                                const parsed = JSON.parse(jsonStr);
+                                reason = parsed.reasoning || parsed.reason || reasoningText;
+                                // Also update confidence if available in reasoning
+                                if (parsed.confidence && !data.confidence) {
+                                    confidence = parsed.confidence;
+                                }
+                            } else {
+                                reason = reasoningText;
+                            }
+                        } else {
+                            reason = reasoningText;
+                        }
+                    } catch (e) {
+                        reason = data.reasoning;
+                    }
                 }
                 
                 if (data.confidence) {
-                    confidence = `${data.confidence}%`;
+                    let conf = data.confidence.toString();
+                    // Remove existing % if present
+                    conf = conf.replace('%', '');
+                    // Ensure it's numeric and add %
+                    if (!isNaN(conf)) {
+                        confidence = `${conf}%`;
+                    } else {
+                        confidence = data.confidence;
+                    }
                 }
 
                 // Enhanced data from TiDB analytics
@@ -1052,44 +1368,73 @@
         // Advanced TiDB Analytics Functions
         async function getAdvancedAnalytics() {
             try {
+                console.log('🔍 Starting getAdvancedAnalytics...');
                 const contentDiv = document.getElementById('recommendations-content');
+                if (!contentDiv) {
+                    console.error('Content div not found!');
+                    return;
+                }
+                
+                contentDiv.style.display = 'block';
                 contentDiv.innerHTML = '<div class="loading">🔍 Loading advanced TiDB analytics...</div>';
                 
+                console.log('📡 Making API call to /analytics/advanced...');
                 const response = await apiCall('/analytics/advanced');
+                console.log('📊 Advanced analytics response:', response);
+                
                 if (response.success && response.signals) {
+                    console.log(`✅ Received ${response.signals.length} signals, displaying...`);
                     displayAdvancedSignals(response.signals);
                 } else {
-                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load advanced analytics</div>';
+                    console.error('❌ Invalid response format:', response);
+                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load advanced analytics - Invalid response format</div>';
                 }
             } catch (error) {
-                console.error('Advanced analytics error:', error);
-                document.getElementById('recommendations-content').innerHTML = 
-                    '<div style="color: #e74c3c;">Error loading advanced analytics</div>';
+                console.error('💥 Advanced analytics error:', error);
+                const contentDiv = document.getElementById('recommendations-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = `<div style="color: #e74c3c;">Error loading advanced analytics: ${error.message}</div>`;
+                }
             }
         }
 
         async function getRealTimeState() {
             try {
+                console.log('⚡ Starting getRealTimeState...');
                 const contentDiv = document.getElementById('recommendations-content');
+                if (!contentDiv) {
+                    console.error('Content div not found!');
+                    return;
+                }
+                
+                contentDiv.style.display = 'block';
                 contentDiv.innerHTML = '<div class="loading">⚡ Loading real-time market state...</div>';
                 
+                console.log('📡 Making API call to /analytics/realtime...');
                 const response = await apiCall('/analytics/realtime');
+                console.log('📊 Real-time state response:', response);
+                
                 if (response.success && response.market_state) {
+                    console.log(`✅ Received ${response.market_state.length} market states, displaying...`);
                     displayRealTimeState(response.market_state);
                 } else {
-                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load real-time state</div>';
+                    console.error('❌ Invalid response format:', response);
+                    contentDiv.innerHTML = '<div style="color: #e74c3c;">Failed to load real-time state - Invalid response format</div>';
                 }
             } catch (error) {
-                console.error('Real-time state error:', error);
-                document.getElementById('recommendations-content').innerHTML = 
-                    '<div style="color: #e74c3c;">Error loading real-time state</div>';
+                console.error('💥 Real-time state error:', error);
+                const contentDiv = document.getElementById('recommendations-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = `<div style="color: #e74c3c;">Error loading real-time state: ${error.message}</div>`;
+                }
             }
         }
 
         async function getEnhancedKimiSignals() {
             try {
                 const contentDiv = document.getElementById('recommendations-content');
-                contentDiv.innerHTML = '<div class="loading">🤖 Loading enhanced Kimi AI signals...</div>';
+                contentDiv.style.display = 'block';
+                contentDiv.innerHTML = '<div class="loading" style="color: red;">🤖 Loading enhanced Kimi AI signals...</div>';
                 
                 const symbols = Object.keys(prices).slice(0, 3); // Top 3 symbols
                 const recommendations = [];
@@ -1116,10 +1461,62 @@
             }
         }
 
+        // Focused analysis for selected symbol
+        async function getEnhancedKimiSignalsForSymbol(symbol) {
+            try {
+                const contentDiv = document.getElementById('recommendations-content');
+                contentDiv.innerHTML = `<div class="loading" style="color: red;">🤖 Loading enhanced Kimi AI signals for ${symbol}...</div>`;
+                
+                const response = await apiCall(`/kimi/enhanced/${symbol}`);
+                if (response.data) {
+                    displayRecommendations([{
+                        symbol: symbol,
+                        data: response.data
+                    }]);
+                } else {
+                    throw new Error('No data received');
+                }
+            } catch (error) {
+                console.error(`Enhanced Kimi signals error for ${symbol}:`, error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    `<div style="color: #e74c3c;">Error loading enhanced Kimi signals for ${symbol}</div>`;
+            }
+        }
+
+        async function getKimiSignalsForSymbol(symbol) {
+            try {
+                const contentDiv = document.getElementById('recommendations-content');
+                contentDiv.innerHTML = `<div class="loading" style="color: blue;">🤖 Loading Kimi AI signals for ${symbol}...</div>`;
+                
+                const response = await apiCall(`/kimi/enhanced/${symbol}`);
+                if (response) {
+                    displayRecommendations([{
+                        symbol: symbol,
+                        data: response
+                    }]);
+                } else {
+                    throw new Error('No data received');
+                }
+            } catch (error) {
+                console.error(`Kimi signals error for ${symbol}:`, error);
+                document.getElementById('recommendations-content').innerHTML = 
+                    `<div style="color: #e74c3c;">Error loading Kimi signals for ${symbol}</div>`;
+            }
+        }
+
         function displayAdvancedSignals(signals) {
+            console.log('🎨 Displaying advanced signals:', signals);
             const contentDiv = document.getElementById('recommendations-content');
             
-            const html = signals.map(signal => {
+            if (!signals || signals.length === 0) {
+                console.warn('⚠️ No signals to display');
+                contentDiv.innerHTML = '<div style="color: #f39c12;">No advanced signals available</div>';
+                return;
+            }
+            
+            const html = signals.map((signal, index) => {
+                console.log(`🔍 Processing signal ${index + 1}:`, signal);
+                
                 const smaClass = signal.sma_cross ? 'bullish' : 'bearish';
                 const volumeClass = signal.volume_ratio > 0.6 ? 'bullish' : 
                                    signal.volume_ratio < 0.4 ? 'bearish' : 'neutral';
@@ -1168,13 +1565,23 @@
                 `;
             }).join('');
             
+            console.log('✅ Generated HTML for signals, updating DOM...');
             contentDiv.innerHTML = html;
         }
 
         function displayRealTimeState(marketState) {
+            console.log('🎨 Displaying real-time state:', marketState);
             const contentDiv = document.getElementById('recommendations-content');
             
-            const html = marketState.map(state => {
+            if (!marketState || marketState.length === 0) {
+                console.warn('⚠️ No market state to display');
+                contentDiv.innerHTML = '<div style="color: #f39c12;">No real-time market state available</div>';
+                return;
+            }
+            
+            const html = marketState.map((state, index) => {
+                console.log(`🔍 Processing market state ${index + 1}:`, state);
+                
                 const volatilityClass = state.volatility_spike > 1.5 ? 'alert' : 'normal';
                 const buyPressureClass = state.buy_pressure > 0.6 ? 'bullish' : 
                                         state.buy_pressure < 0.4 ? 'bearish' : 'neutral';
@@ -1219,12 +1626,11 @@
                 `;
             }).join('');
             
+            console.log('✅ Generated HTML for market states, updating DOM...');
             contentDiv.innerHTML = html;
         }
 
-        // Order Book functionality
-        let currentOrderBookSymbol = 'BTCUSDT';
-        
+        // Order Book functionality        
         async function loadOrderBook() {
             const symbol = document.getElementById('orderbook-symbol').value;
             currentOrderBookSymbol = symbol;
@@ -1330,6 +1736,317 @@
                 loadRecommendations(); // Refresh AI recommendations
             }
         }, 30000);
+
+        // TiDB Analysis Cards functionality
+        let selectedTiDBCard = null;
+        let kimiAnalysisInterval = null;
+
+        function selectTiDBCard(cardType) {
+            // Remove previous selection
+            if (selectedTiDBCard) {
+                selectedTiDBCard.classList.remove('selected');
+            }
+            
+            // Select new card
+            const card = document.querySelector(`[onclick="selectTiDBCard('${cardType}')"]`);
+            if (card) {
+                card.classList.add('selected');
+                selectedTiDBCard = card;
+            }
+            
+            loadTiDBAnalysis(cardType);
+        }
+
+        async function loadTiDBAnalysis(analysisType) {
+            if (!currentSelectedSymbol) {
+                console.warn('No symbol selected for TiDB analysis');
+                return;
+            }
+
+            try {
+                console.log(`🔍 Loading ${analysisType} analysis for ${currentSelectedSymbol}...`);
+                const analysisContent = document.getElementById('tidb-analysis-content');
+                analysisContent.innerHTML = `<div class="loading" style="color: blue;">📊 Loading ${analysisType} analysis for ${currentSelectedSymbol}...</div>`;
+                
+                let endpoint;
+                switch (analysisType) {
+                    case 'realtime':
+                        endpoint = `/tidb/realtime/${currentSelectedSymbol}`;
+                        break;
+                    case 'advanced':
+                    default:
+                        endpoint = `/tidb/advanced/${currentSelectedSymbol}`;
+                        break;
+                }
+                
+                console.log('🔍 TiDB Analysis URL:', `${API_BASE}${endpoint}`);
+                
+                const response = await apiCall(endpoint);
+                console.log('📊 TiDB Analysis Response:', response);
+                
+                if (response && response.data && response.status === 'success') {
+                    displayTiDBAnalysis(response.data, analysisType);
+                } else {
+                    throw new Error('No analysis data received or invalid response');
+                }
+            } catch (error) {
+                console.error(`TiDB ${analysisType} analysis error for ${currentSelectedSymbol}:`, error);
+                document.getElementById('tidb-analysis-content').innerHTML = 
+                    `<div style="color: #e74c3c;">Error loading ${analysisType} analysis for ${currentSelectedSymbol}: ${error.message}</div>`;
+            }
+        }
+
+        function displayTiDBAnalysis(data, analysisType) {
+            console.log(`🎨 Displaying ${analysisType} analysis data:`, data);
+            const analysisContent = document.getElementById('tidb-analysis-content');
+            
+            if (!data) {
+                analysisContent.innerHTML = `<div style="color: #666;">No ${analysisType} analysis data available for ${currentSelectedSymbol}</div>`;
+                return;
+            }
+
+            let html = `<div class="tidb-analysis-results">`;
+            
+            if (analysisType === 'realtime') {
+                // Real-time specific metrics
+                html += `
+                    <div class="analysis-item">
+                        <h5 style="color: #3498db; margin-bottom: 10px;">⚡ Real-time Market State</h5>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Buy Pressure:</span>
+                            <span class="metric-value ${data.buy_pressure > 0.6 ? 'bullish' : data.buy_pressure < 0.4 ? 'bearish' : 'neutral'}">
+                                ${data.buy_pressure ? (data.buy_pressure * 100).toFixed(1) + '%' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Price Momentum:</span>
+                            <span class="metric-value ${data.price_momentum > 0 ? 'bullish' : data.price_momentum < 0 ? 'bearish' : 'neutral'}">
+                                ${data.price_momentum ? (data.price_momentum > 0 ? '+' : '') + data.price_momentum.toFixed(3) + '%' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Volatility Spike:</span>
+                            <span class="metric-value ${data.volatility_spike > 1.5 ? 'alert' : 'normal'}">
+                                ${data.volatility_spike ? data.volatility_spike.toFixed(2) + 'x Normal' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Latest Price:</span>
+                            <span class="metric-value">$${data.latest_price ? data.latest_price.toFixed(2) : 'N/A'}</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Recent Buys vs Sells:</span>
+                            <span class="metric-value">${data.recent_buys || 'N/A'} vs ${data.recent_sells || 'N/A'}</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Volume (5min):</span>
+                            <span class="metric-value">${data.volume_last_5min ? data.volume_last_5min.toFixed(2) : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Advanced analytics metrics
+                html += `
+                    <div class="analysis-item">
+                        <h5 style="color: #27ae60; margin-bottom: 10px;">🔍 Advanced Signals</h5>
+                        <div class="analysis-metric">
+                            <span class="metric-label">SMA Cross Signal:</span>
+                            <span class="metric-value ${data.sma_cross ? 'bullish' : 'bearish'}">
+                                ${data.sma_cross ? '✓ Golden Cross' : '✗ Death Cross'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Volume Ratio:</span>
+                            <span class="metric-value ${data.volume_ratio > 0.6 ? 'bullish' : data.volume_ratio < 0.4 ? 'bearish' : 'neutral'}">
+                                ${data.volume_ratio ? (data.volume_ratio * 100).toFixed(1) + '%' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">5min Momentum:</span>
+                            <span class="metric-value ${data.momentum_5min > 0 ? 'bullish' : data.momentum_5min < 0 ? 'bearish' : 'neutral'}">
+                                ${data.momentum_5min ? (data.momentum_5min > 0 ? '+' : '') + data.momentum_5min.toFixed(3) + '%' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Current Price:</span>
+                            <span class="metric-value">$${data.current_price ? data.current_price.toFixed(2) : 'N/A'}</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Support Level:</span>
+                            <span class="metric-value">$${data.support_level ? data.support_level.toFixed(2) : 'N/A'}</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Resistance Level:</span>
+                            <span class="metric-value">$${data.resistance_level ? data.resistance_level.toFixed(2) : 'N/A'}</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Trade Frequency:</span>
+                            <span class="metric-value">${data.trade_frequency ? data.trade_frequency.toFixed(0) : 'N/A'} trades</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span class="metric-label">Volatility:</span>
+                            <span class="metric-value">${data.volatility ? data.volatility.toFixed(3) : 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="analysis-timestamp" style="margin-top: 15px; text-align: center; font-size: 0.8rem; opacity: 0.7;">
+                    Updated: ${new Date().toLocaleTimeString()}
+                </div>
+            </div>`;
+            
+            console.log('✅ Generated HTML for TiDB analysis, updating DOM...');
+            analysisContent.innerHTML = html;
+        }
+
+        // Auto-update Kimi analysis for selected symbol
+        function startKimiAutoUpdate() {
+            if (kimiAnalysisInterval) {
+                clearInterval(kimiAnalysisInterval);
+            }
+            
+            kimiAnalysisInterval = setInterval(() => {
+                if (currentSelectedSymbol) {
+                    console.log(`🔄 Auto-updating Kimi analysis for selected symbol: ${currentSelectedSymbol}`);
+                    updateKimiAnalysisForSelected();
+                }
+            }, 30000); // Update every 30 seconds
+        }
+
+        function stopKimiAutoUpdate() {
+            if (kimiAnalysisInterval) {
+                clearInterval(kimiAnalysisInterval);
+                kimiAnalysisInterval = null;
+                console.log('🛑 Stopped Kimi auto-update');
+            }
+        }
+
+        let lastKimiUpdateTime = 0;
+        
+        async function updateKimiAnalysisForSelected() {
+            if (!currentSelectedSymbol) return;
+            
+            // Prevent too frequent updates (minimum 5 seconds between manual updates)
+            const now = Date.now();
+            if (now - lastKimiUpdateTime < 5000) {
+                console.log('⏳ Kimi update too frequent, skipping...');
+                return;
+            }
+            lastKimiUpdateTime = now;
+            
+            try {
+                console.log(`🤖 Updating Kimi analysis for: ${currentSelectedSymbol}`);
+                const kimiContent = document.getElementById('selected-kimi-analysis');
+                if (!kimiContent) {
+                    console.error('❌ selected-kimi-analysis element not found!');
+                    return;
+                }
+                
+                kimiContent.innerHTML = '<div class="loading">🤖 Loading Kimi AI analysis...</div>';
+                
+                const endpoint = `/kimi/enhanced/${currentSelectedSymbol}`;
+                console.log(`🔍 Kimi Analysis URL: ${API_BASE}${endpoint}`);
+                
+                const response = await apiCall(endpoint);
+                console.log('📊 Kimi Response:', response);
+                
+                if (response && response.success && response.data) {
+                    const data = response.data;
+                    let reasoning = 'No reasoning provided';
+                    let confidence = data.confidence || '0%';
+                    let recommendation = data.recommendation || 'HOLD';
+                    
+                    // Parse the reasoning JSON if it exists
+                    if (data.reasoning) {
+                        try {
+                            // Extract JSON from the reasoning string
+                            const jsonMatch = data.reasoning.match(/```json\n([\s\S]*?)\n```/);
+                            if (jsonMatch) {
+                                const reasoningData = JSON.parse(jsonMatch[1]);
+                                reasoning = reasoningData.reasoning || data.reasoning;
+                                recommendation = reasoningData.recommendation || recommendation;
+                                if (reasoningData.confidence) {
+                                    confidence = reasoningData.confidence;
+                                }
+                            } else {
+                                reasoning = data.reasoning;
+                            }
+                        } catch (e) {
+                            reasoning = data.reasoning;
+                        }
+                    }
+                    
+                    // Clean up confidence value
+                    let confidenceNum = 0;
+                    if (typeof confidence === 'string') {
+                        confidenceNum = parseFloat(confidence.replace('%', '')) / 100;
+                    } else {
+                        confidenceNum = confidence;
+                    }
+                    
+                    // Get market sentiment and urgency
+                    const sentiment = data.enhanced_data?.market_sentiment || 'UNKNOWN';
+                    const urgency = data.enhanced_data?.urgency || 'MEDIUM';
+                    
+                    kimiContent.innerHTML = `
+                        <div class="kimi-analysis-result">
+                            <div class="kimi-header" style="margin-bottom: 15px; text-align: center;">
+                                <h5 style="color: #e74c3c; margin: 0;">🤖 Enhanced Kimi AI Analysis</h5>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">${currentSelectedSymbol}</div>
+                            </div>
+                            
+                            <div class="kimi-metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <div class="metric-item" style="text-align: center; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                                    <strong>Recommendation:</strong><br>
+                                    <span class="${recommendation === 'BUY' ? 'bullish' : recommendation === 'SELL' ? 'bearish' : 'neutral'}" style="font-size: 1.1rem;">
+                                        ${recommendation}
+                                    </span>
+                                </div>
+                                <div class="metric-item" style="text-align: center; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                                    <strong>Confidence:</strong><br>
+                                    <span class="${confidenceNum > 0.7 ? 'bullish' : confidenceNum < 0.3 ? 'bearish' : 'neutral'}" style="font-size: 1.1rem;">
+                                        ${(confidenceNum * 100).toFixed(1)}%
+                                    </span>
+                                </div>
+                                <div class="metric-item" style="text-align: center; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                                    <strong>Sentiment:</strong><br>
+                                    <span class="${sentiment === 'BULLISH' ? 'bullish' : sentiment === 'BEARISH' ? 'bearish' : 'neutral'}" style="font-size: 1.1rem;">
+                                        ${sentiment}
+                                    </span>
+                                </div>
+                                <div class="metric-item" style="text-align: center; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                                    <strong>Urgency:</strong><br>
+                                    <span class="${urgency === 'HIGH' ? 'alert' : urgency === 'LOW' ? 'neutral' : 'normal'}" style="font-size: 1.1rem;">
+                                        ${urgency}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="kimi-reasoning" style="margin-bottom: 15px;">
+                                <strong style="color: #3498db;">📝 AI Reasoning:</strong><br>
+                                <div style="margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 5px; border-left: 3px solid #e74c3c; font-size: 0.9rem; line-height: 1.4;">
+                                    ${reasoning}
+                                </div>
+                            </div>
+                            
+                            <div class="kimi-timestamp" style="font-size: 0.8rem; opacity: 0.7; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+                                Updated: ${new Date().toLocaleTimeString()}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    kimiContent.innerHTML = '<div style="color: #e74c3c;">❌ No Kimi analysis data available</div>';
+                }
+            } catch (error) {
+                console.error(`❌ Kimi analysis error for ${currentSelectedSymbol}:`, error);
+                const kimiContent = document.getElementById('selected-kimi-analysis');
+                if (kimiContent) {
+                    kimiContent.innerHTML = `<div style="color: #e74c3c;">❌ Error loading Kimi analysis: ${error.message}</div>`;
+                }
+            }
+        }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {

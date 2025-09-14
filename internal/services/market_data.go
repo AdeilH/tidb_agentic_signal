@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -22,6 +23,7 @@ type MarketDataService struct {
 	priceCache      map[string]PriceData
 	running         bool
 	cancel          context.CancelFunc
+	legacyBroadcast chan<- []byte // Channel to broadcast to legacy WebSocket clients
 }
 
 type PriceData struct {
@@ -93,6 +95,87 @@ func NewMarketDataService(binanceClient *trader.Client, wsHub *trader.WSHub, dat
 	return service
 }
 
+// SetLegacyBroadcast sets the legacy broadcast channel for backward compatibility
+func (s *MarketDataService) SetLegacyBroadcast(broadcast chan<- []byte) {
+	s.legacyBroadcast = broadcast
+}
+
+// StartRealtimeStateBroadcast starts periodic broadcasting of real-time state
+func (s *MarketDataService) StartRealtimeStateBroadcast(ctx context.Context) {
+	ticker := time.NewTicker(10 * time.Second) // Broadcast every 10 seconds
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// Get real-time market state for all symbols
+			var realTimeStates []map[string]interface{}
+			for _, symbol := range s.symbols {
+				if state, err := s.GetRealTimeMarketState(symbol); err == nil {
+					realTimeStates = append(realTimeStates, state)
+				}
+			}
+			
+			if len(realTimeStates) > 0 {
+				// Broadcast to legacy WebSocket clients
+				if s.legacyBroadcast != nil {
+					if message, err := json.Marshal(map[string]interface{}{
+						"type": "realtime_state_update",
+						"data": realTimeStates,
+						"timestamp": time.Now(),
+					}); err == nil {
+						select {
+						case s.legacyBroadcast <- message:
+						default:
+							// Channel is full, skip
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// StartTickerBroadcast starts periodic broadcasting of ticker data every 3 seconds
+func (s *MarketDataService) StartTickerBroadcast(ctx context.Context) {
+	ticker := time.NewTicker(3 * time.Second) // Broadcast every 3 seconds
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// Get current price data for all symbols
+			s.mu.RLock()
+			var tickerData []PriceData
+			for _, priceData := range s.priceCache {
+				tickerData = append(tickerData, priceData)
+			}
+			s.mu.RUnlock()
+			
+			if len(tickerData) > 0 {
+				// Broadcast to legacy WebSocket clients
+				if s.legacyBroadcast != nil {
+					if message, err := json.Marshal(map[string]interface{}{
+						"type": "ticker_update",
+						"data": tickerData,
+						"timestamp": time.Now(),
+					}); err == nil {
+						select {
+						case s.legacyBroadcast <- message:
+						default:
+							// Channel is full, skip
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 // setupWebSocketHandlers configures the WebSocket data handlers
 func (s *MarketDataService) setupWebSocketHandlers() {
 	// Ticker data handler
@@ -144,6 +227,8 @@ func (s *MarketDataService) StartStreaming(ctx context.Context) error {
 	// Start background services
 	go s.updatePriceCache(streamCtx)
 	go s.persistMarketData(streamCtx)
+	go s.StartRealtimeStateBroadcast(streamCtx) // Start periodic real-time state broadcasting
+	go s.StartTickerBroadcast(streamCtx) // Start periodic ticker data broadcasting
 
 	log.Printf("✅ Market data service started successfully for %d symbols", len(s.symbols))
 	return nil
@@ -314,6 +399,20 @@ func (s *MarketDataService) startTickerStream(ctx context.Context, symbol string
 		}
 
 		s.wsHub.Broadcast("market_update", update)
+		
+		// Also broadcast to legacy WebSocket clients
+		if s.legacyBroadcast != nil {
+			if message, err := json.Marshal(map[string]interface{}{
+				"type": "market_update",
+				"data": update,
+			}); err == nil {
+				select {
+				case s.legacyBroadcast <- message:
+				default:
+					// Channel is full, skip
+				}
+			}
+		}
 	})
 }
 

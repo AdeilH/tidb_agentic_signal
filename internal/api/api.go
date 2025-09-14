@@ -91,6 +91,9 @@ func New(database *db.DB, binanceClient *trader.Client, kimiClient *kimi.Client)
 	legacyHub := newHub()
 	go legacyHub.run()
 
+	// Connect market data service to legacy hub for WebSocket broadcasting
+	marketDataService.SetLegacyBroadcast(legacyHub.broadcast)
+
 	apiApp := &App{
 		db:                database,
 		app:               app,
@@ -1104,7 +1107,7 @@ Format as JSON:
 		"data": map[string]interface{}{
 			"symbol":         symbol,
 			"recommendation": prediction.Dir,
-			"confidence":     fmt.Sprintf("%.0f%%", prediction.Conv),
+			"confidence":     fmt.Sprintf("%.0f%%", float64(prediction.Conv)),
 			"reasoning":      prediction.Logic,
 			"enhanced_data":  enhancedData,
 			"tidb_analytics": advancedSignals,
