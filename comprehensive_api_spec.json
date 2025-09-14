@@ -1,0 +1,982 @@
+{
+  "api_base_url": "http://localhost:3333",
+  "websocket_urls": {
+    "market_data": "ws://localhost:3333/ws/market",
+    "legacy": "ws://localhost:3333/ws"
+  },
+  "endpoints": {
+    "health_check": {
+      "method": "GET",
+      "endpoint": "/healthz",
+      "description": "Check API service health status",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "ok",
+            "timestamp": 1694718600,
+            "service": "sigforge"
+          }
+        }
+      },
+      "frontend_usage": "Call on app startup to verify backend connectivity"
+    },
+    "create_bot": {
+      "method": "POST",
+      "endpoint": "/bot/create",
+      "description": "Create a new trading bot instance",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "body": {}
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "bot_id": "bot_1n2b3c4d5e6f",
+            "created_at": 1694718600,
+            "status": "active"
+          }
+        }
+      },
+      "frontend_usage": "Use in bot creation wizard, store returned bot_id for future requests"
+    },
+    "get_bot_info": {
+      "method": "GET",
+      "endpoint": "/bot/:botId",
+      "description": "Get detailed information about a specific bot",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "path_params": {
+          "botId": "bot_123456789"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "bot_id": "bot_123456789",
+            "status": "active",
+            "trades": 0,
+            "pnl": 0.0
+          }
+        },
+        "error": {
+          "status": 404,
+          "body": {
+            "error": "Bot not found"
+          }
+        }
+      },
+      "frontend_usage": "Display bot status, trade count, and P&L in dashboard"
+    },
+    "manual_ingest": {
+      "method": "POST",
+      "endpoint": "/ingest/manual",
+      "description": "Trigger manual data ingestion process",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query_params": {
+          "bot_id": "bot_123456789"
+        },
+        "body": {}
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "triggered",
+            "bot_id": "bot_123456789"
+          }
+        }
+      },
+      "frontend_usage": "Manual refresh button in data management section"
+    },
+    "get_current_signal": {
+      "method": "GET",
+      "endpoint": "/signals/current",
+      "description": "Get the most recent trading signal",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "bot_id": "default"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "bot_id": "default",
+            "symbol": "BTC",
+            "side": "LONG",
+            "conv": 85,
+            "timestamp": 1694718600,
+            "logic": "Strong bullish momentum with high volume"
+          }
+        }
+      },
+      "frontend_usage": "Display current active signal with confidence indicator"
+    },
+    "get_signal_history": {
+      "method": "GET",
+      "endpoint": "/signals/history",
+      "description": "Get historical trading signals",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "bot_id": "default"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "bot_id": "default",
+            "signals": [
+              {
+                "symbol": "BTC",
+                "side": "LONG",
+                "conv": 85,
+                "timestamp": 1694715000
+              },
+              {
+                "symbol": "ETH",
+                "side": "SHORT",
+                "conv": 72,
+                "timestamp": 1694711400
+              }
+            ]
+          }
+        }
+      },
+      "frontend_usage": "Signal history table with filtering and sorting"
+    },
+    "get_latest_prediction": {
+      "method": "GET",
+      "endpoint": "/predictions/latest",
+      "description": "Get the most recent AI prediction",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "symbol": "BTC",
+            "dir": "LONG",
+            "conv": 85,
+            "logic": "Strong institutional adoption and technical breakout",
+            "timestamp": 1694718600
+          }
+        }
+      },
+      "frontend_usage": "Latest prediction card in main dashboard"
+    },
+    "get_prediction_history": {
+      "method": "GET",
+      "endpoint": "/predictions/history",
+      "description": "Get historical AI predictions",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "predictions": [
+              {
+                "symbol": "BTC",
+                "dir": "LONG",
+                "conv": 85,
+                "timestamp": 1694715000
+              }
+            ]
+          }
+        }
+      },
+      "frontend_usage": "Prediction accuracy analysis and historical trends"
+    },
+    "get_latest_trades": {
+      "method": "GET",
+      "endpoint": "/trades/latest",
+      "description": "Get the most recent executed trades",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "trades": [
+              {
+                "symbol": "BTCUSDT",
+                "side": "BUY",
+                "qty": 0.001,
+                "price": 45000.00,
+                "status": "FILLED",
+                "timestamp": 1694718600
+              }
+            ]
+          }
+        }
+      },
+      "frontend_usage": "Recent trades widget in trading dashboard"
+    },
+    "get_all_prices": {
+      "method": "GET",
+      "endpoint": "/market/prices",
+      "description": "Get current prices for all tracked symbols",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": [
+              {
+                "symbol": "BTCUSDT",
+                "price": "45000.00",
+                "timestamp": 1694718600
+              }
+            ],
+            "count": 1
+          }
+        }
+      },
+      "frontend_usage": "Price ticker display and market overview"
+    },
+    "get_symbol_price": {
+      "method": "GET",
+      "endpoint": "/market/prices/:symbol",
+      "description": "Get current price for a specific symbol",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": {
+              "symbol": "BTCUSDT",
+              "price": "45000.00",
+              "timestamp": 1694718600
+            }
+          }
+        },
+        "error": {
+          "status": 404,
+          "body": {
+            "status": "error",
+            "error": "Symbol not found"
+          }
+        }
+      },
+      "frontend_usage": "Individual symbol price display and charts"
+    },
+    "get_symbol_ticker": {
+      "method": "GET",
+      "endpoint": "/market/ticker/:symbol",
+      "description": "Get 24hr ticker statistics for a symbol",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": {
+              "symbol": "BTCUSDT",
+              "priceChange": "500.00",
+              "priceChangePercent": "1.12",
+              "weightedAvgPrice": "44875.00",
+              "prevClosePrice": "44500.00",
+              "lastPrice": "45000.00",
+              "bidPrice": "44999.00",
+              "askPrice": "45001.00",
+              "openPrice": "44500.00",
+              "highPrice": "45200.00",
+              "lowPrice": "44300.00",
+              "volume": "1234.56",
+              "quoteVolume": "55350000.00",
+              "openTime": 1694632200000,
+              "closeTime": 1694718600000,
+              "firstId": 12345678,
+              "lastId": 12345679,
+              "count": 1234
+            }
+          }
+        },
+        "error": {
+          "status": 404,
+          "body": {
+            "status": "error",
+            "error": "Symbol not found"
+          }
+        }
+      },
+      "frontend_usage": "24hr statistics display and price change indicators"
+    },
+    "get_order_book": {
+      "method": "GET",
+      "endpoint": "/market/orderbook/:symbol",
+      "description": "Get order book depth for a symbol",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "limit": "100"
+        },
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": {
+              "lastUpdateId": 1027024,
+              "bids": [
+                ["44999.00", "0.50000000"],
+                ["44998.00", "1.20000000"]
+              ],
+              "asks": [
+                ["45001.00", "0.30000000"],
+                ["45002.00", "2.10000000"]
+              ]
+            }
+          }
+        },
+        "error": {
+          "status": 500,
+          "body": {
+            "status": "error",
+            "error": "Failed to fetch order book"
+          }
+        }
+      },
+      "frontend_usage": "Order book visualization and depth chart"
+    },
+    "get_recent_trades": {
+      "method": "GET",
+      "endpoint": "/market/trades/:symbol",
+      "description": "Get recent trades for a symbol",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "limit": "100"
+        },
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": [
+              {
+                "id": 123456789,
+                "price": "45000.00",
+                "qty": "0.00100000",
+                "quoteQty": "45.00000000",
+                "time": 1694718600000,
+                "isBuyerMaker": true,
+                "isBestMatch": true
+              }
+            ],
+            "count": 1
+          }
+        },
+        "error": {
+          "status": 500,
+          "body": {
+            "status": "error",
+            "error": "Failed to fetch recent trades"
+          }
+        }
+      },
+      "frontend_usage": "Recent trades feed and market activity display"
+    },
+    "get_klines": {
+      "method": "GET",
+      "endpoint": "/market/klines/:symbol",
+      "description": "Get candlestick/klines data for charting",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "interval": "1h",
+          "limit": "100",
+          "startTime": "1694632200000",
+          "endTime": "1694718600000"
+        },
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": [
+              [
+                1694718600000,
+                "45000.00",
+                "45200.00",
+                "44800.00",
+                "45100.00",
+                "123.45600000",
+                1694718599999,
+                "5567890.12345678",
+                1234,
+                "67.89000000",
+                "3067890.12345678",
+                "0"
+              ]
+            ],
+            "count": 1
+          }
+        },
+        "error": {
+          "status": 500,
+          "body": {
+            "status": "error",
+            "error": "Failed to fetch klines data"
+          }
+        }
+      },
+      "frontend_usage": "Candlestick charts and technical analysis"
+    },
+    "get_market_summary": {
+      "method": "GET",
+      "endpoint": "/market/summary",
+      "description": "Get market summary with key statistics",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": {
+              "total_symbols": 150,
+              "active_symbols": 45,
+              "total_volume_24h": "1234567890.00",
+              "top_gainers": [
+                {
+                  "symbol": "BTCUSDT",
+                  "change_percent": 2.5,
+                  "price": "45000.00"
+                }
+              ],
+              "top_losers": [
+                {
+                  "symbol": "ETHUSDT",
+                  "change_percent": -1.2,
+                  "price": "2650.00"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "frontend_usage": "Market overview dashboard and watchlist"
+    },
+    "start_market_data": {
+      "method": "POST",
+      "endpoint": "/market/start",
+      "description": "Start the market data collection service",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "body": {}
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "message": "Market data service started"
+          }
+        },
+        "already_running": {
+          "status": 200,
+          "body": {
+            "status": "info",
+            "message": "Market data service is already running"
+          }
+        },
+        "error": {
+          "status": 500,
+          "body": {
+            "status": "error",
+            "error": "Failed to start market data service"
+          }
+        }
+      },
+      "frontend_usage": "Start/stop market data collection controls"
+    },
+    "stop_market_data": {
+      "method": "POST",
+      "endpoint": "/market/stop",
+      "description": "Stop the market data collection service",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "body": {}
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "message": "Market data service stopped"
+          }
+        },
+        "not_running": {
+          "status": 200,
+          "body": {
+            "status": "info",
+            "message": "Market data service is not running"
+          }
+        }
+      },
+      "frontend_usage": "Service control panel"
+    },
+    "get_market_data_status": {
+      "method": "GET",
+      "endpoint": "/market/status",
+      "description": "Get current status of market data service",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "data": {
+              "running": true,
+              "price_count": 45,
+              "timestamp": 1694718600
+            }
+          }
+        }
+      },
+      "frontend_usage": "Service status indicator and monitoring"
+    },
+    "add_symbol": {
+      "method": "POST",
+      "endpoint": "/market/symbols",
+      "description": "Add a new symbol to track",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "body": {
+          "symbol": "ADAUSDT"
+        }
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "status": "success",
+            "message": "Symbol added to market data service",
+            "symbol": "ADAUSDT"
+          }
+        },
+        "validation_error": {
+          "status": 400,
+          "body": {
+            "status": "error",
+            "error": "Symbol is required"
+          }
+        }
+      },
+      "frontend_usage": "Symbol management interface"
+    },
+    "get_tidb_prices": {
+      "method": "GET",
+      "endpoint": "/market/tidb/prices",
+      "description": "Get market prices stored in TiDB",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "data": {
+              "BTCUSDT": {
+                "price": "45000.00",
+                "timestamp": 1694718600,
+                "volume": "123.45"
+              }
+            }
+          }
+        },
+        "error": {
+          "status": 500,
+          "body": {
+            "error": "Failed to fetch market data from TiDB"
+          }
+        }
+      },
+      "frontend_usage": "TiDB-backed price data for analysis"
+    },
+    "get_trading_signals": {
+      "method": "GET",
+      "endpoint": "/market/tidb/signals/:symbol",
+      "description": "Get trading signals for a specific symbol from TiDB",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "data": [
+              {
+                "symbol": "BTCUSDT",
+                "signal": "BUY",
+                "confidence": 85,
+                "timestamp": 1694718600,
+                "logic": "Strong bullish momentum"
+              }
+            ]
+          }
+        },
+        "error": {
+          "status": 400,
+          "body": {
+            "error": "Symbol parameter is required"
+          }
+        }
+      },
+      "frontend_usage": "Signal analysis and visualization"
+    },
+    "get_price_history": {
+      "method": "GET",
+      "endpoint": "/market/tidb/history/:symbol",
+      "description": "Get price history for a symbol from TiDB",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "limit": "50"
+        },
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "data": {
+              "symbol": "BTCUSDT",
+              "history": [
+                {
+                  "timestamp": 1694718600,
+                  "price": "45000.00",
+                  "volume": "123.45"
+                }
+              ],
+              "count": 1
+            }
+          }
+        },
+        "error": {
+          "status": 400,
+          "body": {
+            "error": "Symbol parameter is required"
+          }
+        }
+      },
+      "frontend_usage": "Historical price charts and analysis"
+    },
+    "get_volume_analysis": {
+      "method": "GET",
+      "endpoint": "/market/tidb/volume/:symbol",
+      "description": "Get volume analysis for a symbol from TiDB",
+      "request": {
+        "headers": {},
+        "query_params": {
+          "hours": "24"
+        },
+        "path_params": {
+          "symbol": "BTCUSDT"
+        },
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "data": {
+              "symbol": "BTCUSDT",
+              "hours": 24,
+              "metrics": {
+                "total_volume": "12345.67",
+                "avg_volume_per_hour": "514.40",
+                "peak_volume_hour": 14,
+                "volume_trend": "increasing"
+              }
+            }
+          }
+        },
+        "error": {
+          "status": 400,
+          "body": {
+            "error": "Symbol parameter is required"
+          }
+        }
+      },
+      "frontend_usage": "Volume analysis charts and metrics"
+    },
+    "get_openapi_spec": {
+      "method": "GET",
+      "endpoint": "/openapi.json",
+      "description": "Get OpenAPI specification for the API",
+      "request": {
+        "headers": {},
+        "query_params": {},
+        "body": null
+      },
+      "response": {
+        "success": {
+          "status": 200,
+          "body": {
+            "openapi": "3.0.0",
+            "info": {
+              "title": "SigForge API",
+              "version": "1.0.0",
+              "description": "TiDB-powered crypto signal generation API"
+            },
+            "servers": [
+              {
+                "url": "http://localhost:3333",
+                "description": "Development server"
+              }
+            ],
+            "paths": {
+              "/bot/create": {
+                "post": {
+                  "summary": "Create a new trading bot"
+                }
+              }
+            }
+          }
+        }
+      },
+      "frontend_usage": "API documentation and client generation"
+    }
+  },
+  "websocket_endpoints": {
+    "market_data_ws": {
+      "url": "ws://localhost:3333/ws/market",
+      "description": "Real-time market data and signals via WebSocket",
+      "connection_events": {
+        "onopen": "Connection established",
+        "onmessage": "Receive market data updates",
+        "onclose": "Connection closed",
+        "onerror": "Connection error"
+      },
+      "message_types": {
+        "initial_data": {
+          "type": "initial_data",
+          "data": {
+            "BTCUSDT": {
+              "price": "45000.00",
+              "signals": []
+            }
+          }
+        },
+        "signals": {
+          "type": "signals",
+          "symbol": "BTCUSDT",
+          "data": [
+            {
+              "signal": "BUY",
+              "confidence": 85,
+              "timestamp": 1694718600
+            }
+          ]
+        },
+        "prices": {
+          "type": "prices",
+          "data": {
+            "BTCUSDT": "45000.00"
+          }
+        },
+        "live_update": {
+          "type": "live_update",
+          "symbol": "BTCUSDT",
+          "data": {
+            "price": "45000.00",
+            "signal": "BUY"
+          }
+        }
+      },
+      "client_messages": {
+        "get_signals": {
+          "type": "get_signals",
+          "symbol": "BTCUSDT"
+        },
+        "get_prices": {
+          "type": "get_prices"
+        },
+        "subscribe_symbol": {
+          "type": "subscribe_symbol",
+          "symbol": "BTCUSDT"
+        }
+      },
+      "frontend_usage": "Real-time price updates, signal notifications, live charts"
+    },
+    "legacy_ws": {
+      "url": "ws://localhost:3333/ws",
+      "description": "Legacy WebSocket for backward compatibility",
+      "message_format": "Simple broadcast messages",
+      "frontend_usage": "Fallback WebSocket connection"
+    }
+  },
+  "frontend_recommendations": {
+    "architecture": {
+      "state_management": "Use React Context or Redux for API state",
+      "real_time_updates": "Implement WebSocket connection with reconnection logic",
+      "error_handling": "Global error boundary with retry mechanisms",
+      "loading_states": "Skeleton loaders and progress indicators"
+    },
+    "ui_components": {
+      "dashboard": [
+        "Real-time price ticker",
+        "Active signals display",
+        "Bot status cards",
+        "P&L summary widgets"
+      ],
+      "charts": [
+        "Candlestick charts with signal overlays",
+        "Volume analysis charts",
+        "Prediction confidence gauges",
+        "Historical performance graphs"
+      ],
+      "tables": [
+        "Trade history with sorting/filtering",
+        "Signal history with confidence indicators",
+        "Market data tables with real-time updates"
+      ],
+      "forms": [
+        "Bot creation wizard",
+        "Symbol management interface",
+        "Risk parameter configuration"
+      ]
+    },
+    "data_flow": {
+      "initialization": [
+        "Connect to WebSocket on app load",
+        "Fetch initial market data",
+        "Load user bot configurations"
+      ],
+      "real_time": [
+        "Update prices every second via WebSocket",
+        "Refresh signals every 30 seconds via polling",
+        "Update charts with new candlestick data"
+      ],
+      "user_actions": [
+        "Create bot -> refresh bot list",
+        "Add symbol -> update market data",
+        "Manual ingest -> show progress notification"
+      ]
+    },
+    "performance": {
+      "caching": "Cache static data (bot configs, symbol lists)",
+      "throttling": "Throttle rapid API calls",
+      "pagination": "Implement pagination for large datasets",
+      "lazy_loading": "Load chart data on demand"
+    },
+    "best_practices": {
+      "error_recovery": "Implement exponential backoff for failed requests",
+      "data_validation": "Validate API responses before rendering",
+      "accessibility": "ARIA labels and keyboard navigation",
+      "responsive": "Mobile-first design with responsive charts"
+    }
+  },
+  "common_error_codes": {
+    "400": "Bad Request - Invalid parameters",
+    "404": "Not Found - Resource doesn't exist",
+    "500": "Internal Server Error - Backend issue",
+    "websocket_errors": {
+      "connection_failed": "Failed to establish WebSocket connection",
+      "message_parse_error": "Invalid message format received",
+      "reconnection_limit": "Maximum reconnection attempts exceeded"
+    }
+  },
+  "rate_limits": {
+    "market_data": "100 requests per minute",
+    "bot_operations": "50 requests per minute",
+    "websocket_messages": "No limit for active connections"
+  }
+}

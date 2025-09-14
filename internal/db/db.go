@@ -60,13 +60,13 @@ func Open(dsn string) (*DB, error) {
 	if strings.Contains(dsn, "/sigforge") {
 		// Extract base DSN without database name
 		baseDSN := strings.Replace(dsn, "/sigforge", "/", 1)
-		
+
 		// Connect to MySQL without specific database
 		baseConn, err := sql.Open("mysql", baseDSN)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Create database if it doesn't exist
 		_, err = baseConn.Exec("CREATE DATABASE IF NOT EXISTS sigforge")
 		if err != nil {
@@ -148,9 +148,94 @@ func AutoMigrate(db *DB) error {
 			side VARCHAR(8) NOT NULL,
 			qty DOUBLE NOT NULL,
 			price DOUBLE NOT NULL,
-			status VARCHAR(20) NOT NULL,
+			status VARCHAR(16) NOT NULL,
+			order_id VARCHAR(32),
 			PRIMARY KEY (bot_id, id)
 		)`,
+
+		// Market data tables for TiDB storage and decision making
+
+		// Real-time price data with TTL for space efficiency
+		`CREATE TABLE IF NOT EXISTS market_prices (
+			id BIGINT AUTO_INCREMENT,
+			symbol VARCHAR(16) NOT NULL,
+			price DECIMAL(20,8) NOT NULL,
+			price_change DECIMAL(20,8),
+			price_change_percent DECIMAL(10,4),
+			volume DECIMAL(20,8),
+			quote_volume DECIMAL(20,8),
+			high_24h DECIMAL(20,8),
+			low_24h DECIMAL(20,8),
+			open_price DECIMAL(20,8),
+			bid_price DECIMAL(20,8),
+			ask_price DECIMAL(20,8),
+			ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (symbol, id),
+			KEY idx_ts (ts)
+		) TTL = ts + INTERVAL 7 DAY`,
+
+		// Order book snapshots for depth analysis
+		`CREATE TABLE IF NOT EXISTS market_orderbook (
+			id BIGINT AUTO_INCREMENT,
+			symbol VARCHAR(16) NOT NULL,
+			bids JSON NOT NULL,
+			asks JSON NOT NULL,
+			depth_level INT DEFAULT 20,
+			ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (symbol, id),
+			KEY idx_ts (ts)
+		) TTL = ts + INTERVAL 1 DAY`,
+
+		// Trade stream data for volume analysis
+		`CREATE TABLE IF NOT EXISTS market_trades (
+			id BIGINT AUTO_INCREMENT,
+			symbol VARCHAR(16) NOT NULL,
+			price DECIMAL(20,8) NOT NULL,
+			quantity DECIMAL(20,8) NOT NULL,
+			trade_time DATETIME NOT NULL,
+			is_buyer_maker BOOLEAN NOT NULL,
+			ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (symbol, id),
+			KEY idx_trade_time (trade_time),
+			KEY idx_ts (ts)
+		) TTL = ts + INTERVAL 3 DAY`,
+
+		// Kline/candlestick data for technical analysis
+		`CREATE TABLE IF NOT EXISTS market_klines (
+			id BIGINT AUTO_INCREMENT,
+			symbol VARCHAR(16) NOT NULL,
+			interval_type VARCHAR(8) NOT NULL,
+			open_price DECIMAL(20,8) NOT NULL,
+			high_price DECIMAL(20,8) NOT NULL,
+			low_price DECIMAL(20,8) NOT NULL,
+			close_price DECIMAL(20,8) NOT NULL,
+			volume DECIMAL(20,8) NOT NULL,
+			quote_volume DECIMAL(20,8),
+			open_time DATETIME NOT NULL,
+			close_time DATETIME NOT NULL,
+			is_closed BOOLEAN NOT NULL DEFAULT FALSE,
+			trade_count INT,
+			ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (symbol, interval_type, id),
+			KEY idx_open_time (open_time),
+			KEY idx_ts (ts),
+			UNIQUE KEY unique_kline (symbol, interval_type, open_time)
+		) TTL = ts + INTERVAL 30 DAY`,
+
+		// Market summary and aggregated metrics
+		`CREATE TABLE IF NOT EXISTS market_summary (
+			id BIGINT AUTO_INCREMENT,
+			symbol VARCHAR(16) NOT NULL,
+			avg_price DECIMAL(20,8),
+			volume_24h DECIMAL(20,8),
+			price_trend ENUM('BULLISH','BEARISH','SIDEWAYS'),
+			volatility DECIMAL(10,6),
+			support_level DECIMAL(20,8),
+			resistance_level DECIMAL(20,8),
+			ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (symbol, id),
+			KEY idx_ts (ts)
+		) TTL = ts + INTERVAL 14 DAY`,
 	}
 
 	for _, query := range queries {

@@ -8,22 +8,24 @@ import (
 )
 
 type Config struct {
-	KimiKey       string
-	BinanceKey    string
-	BinanceSecret string
-	DBDSN         string
-	SlackWebhook  string
+	KimiKey           string
+	BinanceKey        string
+	BinanceSecret     string
+	DBDSN             string
+	SlackWebhook      string
+	BinanceProduction bool
 }
 
 func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	c := &Config{
-		KimiKey:       os.Getenv("KIMI_API_KEY"),
-		BinanceKey:    os.Getenv("BINANCE_TEST_KEY"),
-		BinanceSecret: os.Getenv("BINANCE_TEST_SECRET"),
-		DBDSN:         os.Getenv("TIDB_DSN"),
-		SlackWebhook:  os.Getenv("SLACK_WEBHOOK_URL"),
+		KimiKey:           os.Getenv("KIMI_API_KEY"),
+		BinanceKey:        os.Getenv("BINANCE_TEST_KEY"),
+		BinanceSecret:     os.Getenv("BINANCE_TEST_SECRET"),
+		DBDSN:             os.Getenv("TIDB_DSN"),
+		SlackWebhook:      os.Getenv("SLACK_WEBHOOK_URL"),
+		BinanceProduction: false, // Always use testnet for trading operations
 	}
 
 	// Set defaults

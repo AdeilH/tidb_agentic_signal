@@ -87,7 +87,7 @@ func (n *Notifier) NotifyTrade(botID, symbol, side string, quantity, price float
 					return "warning"
 				}(),
 				Title: fmt.Sprintf("%s %s Signal", symbol, side),
-				Text: fmt.Sprintf("Bot: %s\nQuantity: %.5f\nPrice: $%.2f", 
+				Text: fmt.Sprintf("Bot: %s\nQuantity: %.5f\nPrice: $%.2f",
 					botID, quantity, price),
 				Timestamp: time.Now().Unix(),
 			},
@@ -118,7 +118,7 @@ func (n *Notifier) NotifyPrediction(botID, symbol, prediction string, confidence
 					return "#cccccc"
 				}(),
 				Title: fmt.Sprintf("%s Prediction", symbol),
-				Text: fmt.Sprintf("Bot: %s\nPrediction: %s\nConfidence: %d%%", 
+				Text: fmt.Sprintf("Bot: %s\nPrediction: %s\nConfidence: %d%%",
 					botID, prediction, confidence),
 				Timestamp: time.Now().Unix(),
 			},

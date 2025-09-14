@@ -44,7 +44,7 @@ func TestIsSlackEnabled(t *testing.T) {
 	if !config.IsSlackEnabled() {
 		t.Fatal("expected Slack to be enabled when webhook URL is set")
 	}
-	
+
 	// Test with empty Slack webhook URL
 	config = &Config{SlackWebhook: ""}
 	if config.IsSlackEnabled() {

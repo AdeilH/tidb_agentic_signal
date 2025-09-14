@@ -7,13 +7,15 @@ import (
 	"github.com/adeilh/agentic_go_signals/internal/config"
 	"github.com/adeilh/agentic_go_signals/internal/db"
 	"github.com/adeilh/agentic_go_signals/internal/kimi"
+	"github.com/adeilh/agentic_go_signals/internal/trader"
 )
 
 var (
-	once    sync.Once
-	DB      *db.DB
-	KClient *kimi.Client
-	App     *api.App
+	once          sync.Once
+	DB            *db.DB
+	KClient       *kimi.Client
+	BinanceClient *trader.Client
+	App           *api.App
 )
 
 func Init(cfg *config.Config) error {
@@ -30,7 +32,8 @@ func Init(cfg *config.Config) error {
 			return
 		}
 		KClient = kimi.NewClient(cfg.KimiKey)
-		App = api.New(DB)
+		BinanceClient = trader.NewClientWithConfig(cfg.BinanceKey, cfg.BinanceSecret, cfg.BinanceProduction)
+		App = api.New(DB, BinanceClient, KClient)
 	})
 	return initErr
 }

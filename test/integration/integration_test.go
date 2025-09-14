@@ -76,7 +76,7 @@ func testTiDBConnection(t *testing.T, cfg *config.Config) {
 
 	// Test basic database operations by inserting test data
 	conn := database.GetConn()
-	
+
 	// Insert test event
 	testBotID := "test-integration-bot"
 	_, err = conn.Exec(`
@@ -126,7 +126,7 @@ func testKimiAIIntegration(t *testing.T, cfg *config.Config) {
 	assert.LessOrEqual(t, prediction.Conv, 100, "Conviction should be at most 100")
 	assert.NotEmpty(t, prediction.Logic, "Prediction logic should not be empty")
 
-	t.Logf("✅ Kimi AI prediction: %s (conviction: %d%%) - %s", 
+	t.Logf("✅ Kimi AI prediction: %s (conviction: %d%%) - %s",
 		prediction.Dir, prediction.Conv, prediction.Logic)
 }
 
@@ -139,7 +139,7 @@ func testBinanceIntegration(t *testing.T, cfg *config.Config) {
 
 	baseURL := "https://testnet.binance.vision"
 	timestamp := time.Now().UnixMilli()
-	
+
 	// Test server time endpoint (no auth required)
 	resp, err := http.Get(baseURL + "/api/v3/time")
 	require.NoError(t, err, "Failed to connect to Binance testnet")
@@ -236,7 +236,7 @@ func testEndToEndSignalGeneration(t *testing.T, cfg *config.Config) {
 	_, err = conn.Exec("DELETE FROM predictions WHERE bot_id = ?", testBotID)
 	require.NoError(t, err, "Failed to cleanup predictions")
 
-	t.Logf("✅ End-to-end signal generated: %s with %d%% confidence", 
+	t.Logf("✅ End-to-end signal generated: %s with %d%% confidence",
 		prediction.Dir, prediction.Conv)
 }
 
@@ -261,7 +261,7 @@ func testTiDBTTLFeatures(t *testing.T, cfg *config.Config) {
 	// Insert test vector data that would be subject to TTL
 	testBotID := "ttl-test-bot"
 	vectorData := `[0.1, 0.2, 0.3, 0.4, 0.5]`
-	
+
 	_, err = conn.Exec(`
 		INSERT INTO event_vecs (id, bot_id, ts, sym, vec, text) 
 		VALUES (1, ?, NOW() - INTERVAL 31 DAY, 'BTCUSDT', ?, 'Old vector data')
@@ -353,16 +353,16 @@ func testVectorStorageFeatures(t *testing.T, cfg *config.Config) {
 		var id int
 		var vecJSON string
 		var text string
-		
+
 		err = rows.Scan(&id, &vecJSON, &text)
 		require.NoError(t, err, "Failed to scan vector row")
-		
+
 		// Verify JSON structure
 		var vector []float64
 		err = json.Unmarshal([]byte(vecJSON), &vector)
 		require.NoError(t, err, "Vector should be valid JSON array")
 		assert.Len(t, vector, 5, "Vector should have 5 dimensions")
-		
+
 		retrievedCount++
 	}
 	assert.Equal(t, 3, retrievedCount, "Should retrieve all 3 vectors")
@@ -446,7 +446,7 @@ func BenchmarkTiDBOperations(b *testing.B) {
 
 	b.Run("InsertEvent", func(b *testing.B) {
 		botID := "benchmark-bot"
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_, err := conn.Exec(`
@@ -457,14 +457,14 @@ func BenchmarkTiDBOperations(b *testing.B) {
 				b.Fatal(err)
 			}
 		}
-		
+
 		// Cleanup
 		_, _ = conn.Exec("DELETE FROM events WHERE bot_id = ?", botID)
 	})
 
 	b.Run("InsertPrediction", func(b *testing.B) {
 		botID := "benchmark-bot"
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_, err := conn.Exec(`
@@ -475,7 +475,7 @@ func BenchmarkTiDBOperations(b *testing.B) {
 				b.Fatal(err)
 			}
 		}
-		
+
 		// Cleanup
 		_, _ = conn.Exec("DELETE FROM predictions WHERE bot_id = ?", botID)
 	})
@@ -483,7 +483,7 @@ func BenchmarkTiDBOperations(b *testing.B) {
 	b.Run("InsertVector", func(b *testing.B) {
 		botID := "benchmark-bot"
 		vectorJSON := `[0.1, 0.2, 0.3, 0.4, 0.5]`
-		
+
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			_, err := conn.Exec(`
@@ -494,7 +494,7 @@ func BenchmarkTiDBOperations(b *testing.B) {
 				b.Fatal(err)
 			}
 		}
-		
+
 		// Cleanup
 		_, _ = conn.Exec("DELETE FROM event_vecs WHERE bot_id = ?", botID)
 	})

@@ -20,6 +20,39 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
+func TestNewProductionClient(t *testing.T) {
+	client := NewProductionClient("test-key", "test-secret")
+	if client == nil {
+		t.Fatal("expected client to be non-nil")
+	}
+	if client.apiKey != "test-key" {
+		t.Fatal("expected api key to be set")
+	}
+	if client.apiSecret != "test-secret" {
+		t.Fatal("expected api secret to be set")
+	}
+	if client.baseURL != "https://api.binance.com" {
+		t.Fatal("expected production base URL")
+	}
+	if client.wsURL != "wss://stream.binance.com:9443" {
+		t.Fatal("expected production WebSocket URL")
+	}
+}
+
+func TestNewClientWithConfig(t *testing.T) {
+	// Test testnet configuration
+	testnetClient := NewClientWithConfig("test-key", "test-secret", false)
+	if testnetClient.baseURL != "https://testnet.binance.vision" {
+		t.Fatal("expected testnet base URL")
+	}
+
+	// Test production configuration
+	prodClient := NewClientWithConfig("test-key", "test-secret", true)
+	if prodClient.baseURL != "https://api.binance.com" {
+		t.Fatal("expected production base URL")
+	}
+}
+
 func TestSign(t *testing.T) {
 	client := NewClient("test-key", "test-secret")
 

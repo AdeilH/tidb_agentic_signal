@@ -1,0 +1,294 @@
+{
+  "api_base_url": "http://localhost:3333",
+  "websocket_url": "ws://localhost:3333/ws",
+  "sample_responses": {
+    "health_check": {
+      "endpoint": "GET /healthz",
+      "response": {
+        "status": "ok",
+        "timestamp": "2025-09-14T18:30:00Z",
+        "version": "v0.1.0"
+      }
+    },
+    "create_bot": {
+      "endpoint": "POST /bot/create",
+      "request": {
+        "name": "My Trading Bot",
+        "symbols": ["BTCUSDT", "ETHUSDT"],
+        "risk_params": {
+          "account_balance": 10000,
+          "risk_per_trade": 0.02,
+          "max_position_size": 0.10,
+          "stop_loss_percent": 0.05
+        }
+      },
+      "response": {
+        "id": "bot_123456789",
+        "name": "My Trading Bot",
+        "symbols": ["BTCUSDT", "ETHUSDT"],
+        "status": "active",
+        "created_at": "2025-09-14T18:30:00Z",
+        "risk_metrics": {
+          "account_balance": 10000,
+          "risk_per_trade": 2.0,
+          "max_position_size": 10.0,
+          "stop_loss_percent": 5.0,
+          "max_risk_amount": 200,
+          "max_position_value": 1000
+        }
+      }
+    },
+    "get_bot": {
+      "endpoint": "GET /bot/:id",
+      "response": {
+        "id": "bot_123456789",
+        "name": "My Trading Bot",
+        "symbols": ["BTCUSDT", "ETHUSDT"],
+        "status": "active",
+        "created_at": "2025-09-14T18:30:00Z",
+        "last_activity": "2025-09-14T18:45:00Z",
+        "total_trades": 25,
+        "total_predictions": 120,
+        "success_rate": 68.5,
+        "risk_metrics": {
+          "account_balance": 10000,
+          "risk_per_trade": 2.0,
+          "max_position_size": 10.0,
+          "stop_loss_percent": 5.0,
+          "max_risk_amount": 200,
+          "max_position_value": 1000
+        }
+      }
+    },
+    "get_signals": {
+      "endpoint": "GET /bot/:id/signals",
+      "response": {
+        "bot_id": "bot_123456789",
+        "timestamp": "2025-09-14T18:45:00Z",
+        "signals": [
+          {
+            "symbol": "BTCUSDT",
+            "prediction": "bullish",
+            "confidence": 85,
+            "direction": "long",
+            "entry_price": 65500.00,
+            "stop_loss": 62225.00,
+            "take_profit": 70000.00,
+            "position_size": 0.015,
+            "risk_amount": 195.00,
+            "risk_reward_ratio": 2.3,
+            "created_at": "2025-09-14T18:44:30Z",
+            "status": "active",
+            "reasoning": "Strong bullish momentum based on news sentiment and on-chain metrics. Institutional buying pressure increasing."
+          },
+          {
+            "symbol": "ETHUSDT",
+            "prediction": "bearish",
+            "confidence": 72,
+            "direction": "short",
+            "entry_price": 2650.00,
+            "stop_loss": 2783.00,
+            "take_profit": 2400.00,
+            "position_size": 0.75,
+            "risk_amount": 180.00,
+            "risk_reward_ratio": 1.8,
+            "created_at": "2025-09-14T18:43:15Z",
+            "status": "pending",
+            "reasoning": "Negative market sentiment and decreasing DeFi activity suggesting downward pressure."
+          }
+        ]
+      }
+    },
+    "manual_ingest": {
+      "endpoint": "POST /ingest/manual",
+      "request": {
+        "bot_id": "bot_123456789"
+      },
+      "response": {
+        "success": true,
+        "message": "Manual ingestion completed",
+        "timestamp": "2025-09-14T18:45:00Z",
+        "events_created": 15,
+        "sources": ["news", "chain_metrics"]
+      }
+    },
+    "get_predictions": {
+      "endpoint": "GET /predictions/:bot_id/:symbol",
+      "response": {
+        "bot_id": "bot_123456789",
+        "symbol": "BTCUSDT",
+        "predictions": [
+          {
+            "id": 1001,
+            "timestamp": "2025-09-14T18:44:30Z",
+            "direction": "bullish",
+            "confidence": 85,
+            "logic": "Strong bullish momentum based on news sentiment and on-chain metrics",
+            "forward_return": null,
+            "status": "active"
+          },
+          {
+            "id": 1000,
+            "timestamp": "2025-09-14T18:34:30Z",
+            "direction": "neutral",
+            "confidence": 65,
+            "logic": "Mixed signals from market data, awaiting clearer direction",
+            "forward_return": 2.3,
+            "status": "completed"
+          },
+          {
+            "id": 999,
+            "timestamp": "2025-09-14T18:24:30Z",
+            "direction": "bearish",
+            "confidence": 78,
+            "logic": "Negative sentiment from news and declining network activity",
+            "forward_return": -1.2,
+            "status": "completed"
+          }
+        ]
+      }
+    },
+    "get_trades": {
+      "endpoint": "GET /trades/:bot_id",
+      "response": {
+        "bot_id": "bot_123456789",
+        "trades": [
+          {
+            "id": 501,
+            "timestamp": "2025-09-14T18:40:00Z",
+            "symbol": "BTCUSDT",
+            "side": "long",
+            "quantity": 0.015,
+            "price": 65500.00,
+            "status": "filled",
+            "pnl": 125.50,
+            "pnl_percent": 1.92
+          },
+          {
+            "id": 500,
+            "timestamp": "2025-09-14T18:25:00Z",
+            "symbol": "ETHUSDT",
+            "side": "short",
+            "quantity": 0.80,
+            "price": 2680.00,
+            "status": "filled",
+            "pnl": -45.20,
+            "pnl_percent": -2.11
+          },
+          {
+            "id": 499,
+            "timestamp": "2025-09-14T18:10:00Z",
+            "symbol": "BTCUSDT",
+            "side": "long",
+            "quantity": 0.012,
+            "price": 64200.00,
+            "status": "cancelled",
+            "pnl": 0,
+            "pnl_percent": 0
+          }
+        ],
+        "summary": {
+          "total_trades": 25,
+          "winning_trades": 17,
+          "losing_trades": 8,
+          "win_rate": 68.0,
+          "total_pnl": 1250.75,
+          "total_pnl_percent": 12.51
+        }
+      }
+    },
+    "websocket_events": {
+      "connection": "ws://localhost:3333/ws",
+      "events": [
+        {
+          "type": "ingestion",
+          "bot_id": "bot_123456789",
+          "timestamp": "2025-09-14T18:45:00Z",
+          "news_count": 12,
+          "metrics": {
+            "active_addresses": 526152,
+            "tx_count": 533108,
+            "price": 65500.00
+          }
+        },
+        {
+          "type": "prediction",
+          "bot_id": "bot_123456789",
+          "symbol": "BTCUSDT",
+          "prediction": "bullish",
+          "confidence": 85,
+          "timestamp": "2025-09-14T18:44:30Z"
+        },
+        {
+          "type": "trade",
+          "bot_id": "bot_123456789",
+          "symbol": "BTCUSDT",
+          "side": "long",
+          "quantity": 0.015,
+          "price": 65500.00,
+          "status": "filled",
+          "timestamp": "2025-09-14T18:40:00Z"
+        },
+        {
+          "type": "error",
+          "bot_id": "bot_123456789",
+          "component": "predictor",
+          "error": "API rate limit exceeded",
+          "timestamp": "2025-09-14T18:35:00Z"
+        }
+      ]
+    }
+  },
+  "error_responses": {
+    "bot_not_found": {
+      "status": 404,
+      "error": "Bot not found",
+      "message": "Bot with ID 'bot_invalid' not found"
+    },
+    "validation_error": {
+      "status": 400,
+      "error": "Validation failed",
+      "message": "Invalid request parameters",
+      "details": {
+        "symbols": "At least one symbol is required",
+        "risk_per_trade": "Must be between 0.001 and 1.0"
+      }
+    },
+    "internal_error": {
+      "status": 500,
+      "error": "Internal server error",
+      "message": "An unexpected error occurred"
+    }
+  },
+  "frontend_recommendations": {
+    "real_time_updates": {
+      "description": "Use WebSocket connection for real-time signal updates",
+      "implementation": "Connect to ws://localhost:3333/ws and handle events by type"
+    },
+    "polling_fallback": {
+      "description": "Poll GET /bot/:id/signals every 30-60 seconds as fallback",
+      "implementation": "Useful when WebSocket connection fails"
+    },
+    "data_visualization": {
+      "charts": [
+        "Real-time price charts with signal overlays",
+        "Confidence level indicators",
+        "PnL tracking over time",
+        "Win rate statistics"
+      ],
+      "components": [
+        "Signal dashboard with color-coded predictions",
+        "Trade history table with sorting/filtering",
+        "Risk metrics display",
+        "Bot status indicators"
+      ]
+    },
+    "user_interactions": [
+      "Create/configure trading bots",
+      "View live trading signals",
+      "Monitor trade execution",
+      "Analyze prediction accuracy",
+      "Trigger manual data ingestion"
+    ]
+  }
+}
