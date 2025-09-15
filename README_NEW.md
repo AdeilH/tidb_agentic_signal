@@ -99,7 +99,7 @@ cd agentic_go_signals
 
 ### 2. Start TiDB Cluster
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts:

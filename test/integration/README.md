@@ -15,10 +15,10 @@ SLACK_WEBHOOK_URL=  # Optional
 ```
 
 ### 2. TiDB Cluster
-Start TiDB using docker-compose:
+Start TiDB using docker compose:
 ```bash
 cd /path/to/project
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 3. API Keys
@@ -161,7 +161,7 @@ go test ./test/integration -bench=. -v
 
 1. **Database Connection Failed**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    docker ps  # Verify TiDB is running
    ```
 
@@ -178,7 +178,7 @@ go test ./test/integration -bench=. -v
 4. **Permission Errors**
    ```bash
    chmod +x docker-compose.yml
-   sudo docker-compose up -d  # If needed
+   sudo docker compose up -d  # If needed
    ```
 
 ### Skip Tests in CI

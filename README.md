@@ -227,7 +227,7 @@ cp .env.example .env
 # Edit .env with your API keys
 
 # 2. Start TiDB cluster
-docker-compose up -d
+docker compose up -d
 
 # 3. Run tests to validate setup
 ./test/integration/run_tests.sh
@@ -344,7 +344,7 @@ cd agentic_go_signals
 
 ### 2. Start TiDB Cluster
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts:

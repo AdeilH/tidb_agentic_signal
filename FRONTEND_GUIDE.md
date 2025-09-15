@@ -394,7 +394,7 @@ const apiCall = async (endpoint, options = {}) => {
 - API runs on port 3333 by default
 - WebSocket uses same port with `/ws` path
 - No CORS restrictions in development mode
-- Ensure TiDB cluster is running via docker-compose
+- Ensure TiDB cluster is running via docker compose
 
 ## 📊 Sample Data Flow
 

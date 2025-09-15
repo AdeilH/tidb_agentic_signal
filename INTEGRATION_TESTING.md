@@ -30,7 +30,7 @@ cp .env.example .env
 
 ### 2. Start TiDB
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 3. Run Tests
@@ -128,7 +128,7 @@ Expected results:
 
 **TiDB Connection Failed**
 ```bash
-docker-compose down && docker-compose up -d
+docker compose down && docker compose up -d
 docker ps  # Verify containers are running
 ```
 

@@ -60,13 +60,13 @@ if ! command_exists docker; then
     exit 1
 fi
 
-# Check docker-compose (try both docker-compose and docker compose)
-if command_exists docker-compose; then
-    DOCKER_COMPOSE="docker-compose"
+# Check docker compose (try both docker compose and docker compose)
+if command_exists docker compose; then
+    DOCKER_COMPOSE="docker compose"
 elif command_exists docker && docker compose version >/dev/null 2>&1; then
     DOCKER_COMPOSE="docker compose"
 else
-    print_error "Neither docker-compose nor docker compose is available. Please install Docker Compose"
+    print_error "Neither docker compose nor docker compose is available. Please install Docker Compose"
     exit 1
 fi
 

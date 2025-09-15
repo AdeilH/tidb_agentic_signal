@@ -21,7 +21,7 @@ import (
 
 // TestIntegrationFullSystem tests the complete system integration
 // This test requires:
-// - TiDB running (via docker-compose up)
+// - TiDB running (via docker compose up)
 // - Valid API keys in .env file
 // - Internet connection for external API calls
 func TestIntegrationFullSystem(t *testing.T) {
