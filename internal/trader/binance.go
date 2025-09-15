@@ -188,7 +188,7 @@ func NewClient(apiKey, apiSecret string) *Client {
 		apiSecret: apiSecret,
 		baseURL:   "https://testnet.binance.vision",
 		wsURL:     "wss://testnet.binance.vision/ws",
-		client:    &http.Client{Timeout: 30 * time.Second},
+		client:    &http.Client{Timeout: 120 * time.Second},
 	}
 }
 
@@ -199,7 +199,7 @@ func NewProductionClient(apiKey, apiSecret string) *Client {
 		apiSecret: apiSecret,
 		baseURL:   "https://api.binance.com",
 		wsURL:     "wss://stream.binance.com:9443",
-		client:    &http.Client{Timeout: 30 * time.Second},
+		client:    &http.Client{Timeout: 120 * time.Second},
 	}
 }
 

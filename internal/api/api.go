@@ -105,10 +105,10 @@ func New(database *db.DB, binanceClient *trader.Client, kimiClient *kimi.Client)
 	}
 
 	apiApp.setupRoutes()
-	
+
 	// Auto-start market data collection
 	go apiApp.autoStartMarketData()
-	
+
 	return apiApp
 }
 
@@ -157,7 +157,7 @@ func (a *App) setupRoutes() {
 
 	// Kimi AI signals endpoint
 	a.app.Get("/kimi/signals/:symbol", a.getKimiSignals)
-	a.app.Get("/kimi/enhanced/:symbol", a.getEnhancedKimiSignals)
+	a.app.Get("/kimi/enhanced/:symbol", a.getKimiSignals)
 
 	// Advanced TiDB Analytics endpoints
 	a.app.Get("/tidb/advanced/:symbol", a.getAdvancedAnalytics)
@@ -468,7 +468,7 @@ func (a *App) startMarketData(c *fiber.Ctx) error {
 // autoStartMarketData automatically starts the market data service on server startup
 func (a *App) autoStartMarketData() {
 	log.Printf("🚀 Auto-starting market data service...")
-	
+
 	if a.marketDataService.IsRunning() {
 		log.Printf("ℹ️ Market data service is already running")
 		return

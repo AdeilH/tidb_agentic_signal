@@ -7,17 +7,27 @@ import (
 	"testing"
 
 	"github.com/adeilh/agentic_go_signals/internal/db"
+	"github.com/adeilh/agentic_go_signals/internal/kimi"
+	"github.com/adeilh/agentic_go_signals/internal/trader"
 )
 
 func TestNew(t *testing.T) {
-	app := New(&db.DB{})
+	// Create test clients
+	binanceClient := trader.NewClient("", "") // Empty API keys for testing
+	kimiClient := kimi.NewClient("")          // Empty API key for testing
+
+	app := New(&db.DB{}, binanceClient, kimiClient)
 	if app == nil {
 		t.Fatal("expected app to be non-nil")
 	}
 }
 
 func TestHealthCheck(t *testing.T) {
-	app := New(&db.DB{})
+	// Create test clients
+	binanceClient := trader.NewClient("", "") // Empty API keys for testing
+	kimiClient := kimi.NewClient("")          // Empty API key for testing
+
+	app := New(&db.DB{}, binanceClient, kimiClient)
 
 	req := httptest.NewRequest("GET", "/healthz", nil)
 	resp, err := app.app.Test(req)
@@ -36,7 +46,11 @@ func TestHealthCheck(t *testing.T) {
 }
 
 func TestCreateBot(t *testing.T) {
-	app := New(&db.DB{})
+	// Create test clients
+	binanceClient := trader.NewClient("", "") // Empty API keys for testing
+	kimiClient := kimi.NewClient("")          // Empty API key for testing
+
+	app := New(&db.DB{}, binanceClient, kimiClient)
 
 	req := httptest.NewRequest("POST", "/bot/create", nil)
 	resp, err := app.app.Test(req)
@@ -55,7 +69,11 @@ func TestCreateBot(t *testing.T) {
 }
 
 func TestManualIngest(t *testing.T) {
-	app := New(&db.DB{})
+	// Create test clients
+	binanceClient := trader.NewClient("", "") // Empty API keys for testing
+	kimiClient := kimi.NewClient("")          // Empty API key for testing
+
+	app := New(&db.DB{}, binanceClient, kimiClient)
 
 	req := httptest.NewRequest("POST", "/ingest/manual?bot_id=test123", nil)
 	resp, err := app.app.Test(req)

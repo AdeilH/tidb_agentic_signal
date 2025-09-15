@@ -721,8 +721,16 @@
             <div class="selected-symbol-analysis" id="selected-symbol-analysis" style="display: none;">
                 <div class="analysis-section">
                     <h4>🤖 Kimi AI Analysis</h4>
+                    <div style="margin-bottom: 10px;">
+                        <button onclick="updateKimiAnalysisForSelected()" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                            🤖 Get AI Analysis
+                        </button>
+                        <span style="margin-left: 10px; font-size: 0.8rem; opacity: 0.7;">
+                            Click to request AI analysis for selected symbol
+                        </span>
+                    </div>
                     <div id="selected-kimi-analysis" class="analysis-content">
-                        Loading analysis...
+                        Click "Get AI Analysis" button to load analysis for selected symbol...
                     </div>
                 </div>
                 
@@ -747,15 +755,22 @@
 
         <div class="controls">
             <h4>TiDB Advanced Analytics</h4>
+            <p style="font-size: 0.9rem; color: #666; margin: 5px 0 15px 0;">
+                🔧 <strong>Manual Mode:</strong> AI analysis now runs only when requested to improve performance.
+            </p>
             <div class="button-group">
                 <button class="btn-analytics" onclick="getAdvancedAnalytics()">🔍 Advanced Signals</button>
                 <button class="btn-analytics" onclick="getRealTimeState()">⚡ Real-Time State</button>
-                <button class="btn-analytics" onclick="getEnhancedKimiSignals()">🤖 Enhanced Kimi AI</button>
+                <button class="btn-analytics" onclick="loadRecommendations()">🤖 AI Recommendations</button>
+                <button class="btn-analytics" onclick="getEnhancedKimiSignals()">🚀 Enhanced Kimi AI</button>
             </div>
 
             <!-- Analytics Display Area -->
             <div id="recommendations-content" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
-                <div class="loading">Loading analytics...</div>
+                <div style="color: #666; text-align: center; padding: 20px;">
+                    Click a button above to load analytics data.<br>
+                    <small>AI analysis will only run when explicitly requested.</small>
+                </div>
             </div>
         </div>
 
@@ -876,7 +891,7 @@
             document.getElementById('update-count').textContent = updateCount;
             document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
 
-            console.log('WebSocket message received:', data);
+            // console.log('WebSocket message received:', data);
 
             if (data.type === 'market_update' && data.data) {
                 if (data.data.type === 'price_update') {
@@ -887,13 +902,12 @@
                         getMarketSummary();
                     }
                     
-                    // Auto-refresh data if relevant tabs are active
+                    // Auto-refresh data only for lightweight analytics (not AI)
                     const currentTab = document.querySelector('.tab-button.active')?.textContent;
                     if (currentTab === 'Real-Time State') {
                         setTimeout(() => getRealTimeState(), 1000); // Delay to let price settle
-                    } else if (currentTab === 'Enhanced-Kimi-AI') {
-                        setTimeout(() => getEnhancedKimiSignals(), 2000); // Longer delay for AI processing
                     }
+                    // Removed automatic Enhanced Kimi AI calls - now manual only
                 } else if (data.data.type === 'depth' && data.symbol === currentOrderBookSymbol) {
                     // Update order book in real-time
                     displayOrderBook(data.data);
@@ -1118,25 +1132,17 @@
             if (analysisSection) {
                 analysisSection.style.display = 'block';
                 
-                // Stop any existing auto-update and start fresh for new symbol
+                // Stop any existing auto-update - now manual only
                 stopKimiAutoUpdate();
-                console.log(`🔄 Starting Kimi auto-update for ${symbol} (30s interval)`);
-                startKimiAutoUpdate();
-                updateKimiAnalysisForSelected();
+                console.log(`🔄 Selected symbol: ${symbol} - Analysis available on demand`);
                 
-                // Load default TiDB analysis (advanced)
+                // Load default TiDB analysis (advanced) - this is lightweight
                 loadTiDBAnalysis('advanced');
             }
             
-            // Update the current tab with focused analysis for the selected symbol
-            const currentTab = document.querySelector('.tab-button.active')?.textContent;
-            if (currentTab === 'Enhanced-Kimi-AI') {
-                getEnhancedKimiSignalsForSymbol(symbol);
-            } else if (currentTab === 'AI Signals') {
-                getKimiSignalsForSymbol(symbol);
-            }
+            // Removed automatic AI calls when selecting symbols - now manual only
             
-            console.log(`Selected symbol: ${symbol} - Integrated analysis loaded`);
+            console.log(`Selected symbol: ${symbol} - Analysis available on demand`);
         }
 
         function updatePriceCard(priceData) {
@@ -1738,7 +1744,7 @@
             if (document.getElementById('price-grid').style.display !== 'none') {
                 loadMarketData();
                 getMarketSummary(); // Auto-update market summary including avg change
-                loadRecommendations(); // Refresh AI recommendations
+                // Removed automatic AI recommendations refresh - now manual only
             }
         }, 30000);
 
@@ -1990,7 +1996,7 @@
                 const response = await apiCall(endpoint);
                 console.log('📊 Kimi Response:', response);
                 
-                if (response && response.success && response.data) {
+                if (response && response.data) {
                     const data = response.data;
                     let reasoning = 'No reasoning provided';
                     let confidence = data.confidence || '0%';
@@ -2111,7 +2117,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadMarketData();
             loadOrderBook();
-            loadRecommendations();
+            // Removed automatic loadRecommendations - now manual only
             connectWebSocket();
         });
     </script>

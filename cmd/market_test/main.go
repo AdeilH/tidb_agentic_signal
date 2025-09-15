@@ -173,7 +173,7 @@ func testMarketDataService(client *trader.Client) {
 
 	// Start service in goroutine since it's blocking
 	go func() {
-		if err := service.Start(ctx); err != nil && err != context.DeadlineExceeded {
+		if err := service.StartStreaming(ctx); err != nil && err != context.DeadlineExceeded {
 			log.Printf("  ⚠️  Service start error: %v", err)
 		}
 	}()

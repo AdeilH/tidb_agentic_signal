@@ -143,7 +143,7 @@ func (o *Orchestrator) predictWorker() {
 	defer ticker.Stop()
 
 	// Wait a bit before first prediction to let ingestion run
-	time.Sleep(30 * time.Second)
+	time.Sleep(120 * time.Second)
 
 	for {
 		select {
